@@ -48,10 +48,21 @@ class UserController {
 
   getUsers = async (req, res) => {
     try {
-      const { id } = req.user;
-      const users = await userManager.getUsers(id);
-      if (!users) throw new Error("No user exist");
-      res.status(200).json({ message: "Users Detail ", data: users });
+      const {search:searchingName} = req.query;
+      console.log(searchingName);
+      if (searchingName) {
+       
+        const users = await userManager.getUsersByName(searchingName);
+        if (!users) throw new Error("No user exist");
+         
+        res.status(200).json({ message: "Users Detail ",  data: Array.isArray(users) ? users : [users]});
+      }
+
+      else{
+       
+      const topUsers = await userManager.getUsers();
+      return res.json({ data: topUsers });
+      }
     } catch (error) {
       res.status(400).json({ error: error.message });
     }

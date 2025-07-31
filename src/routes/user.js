@@ -8,7 +8,7 @@ const { isManager } = require("../middleware/isManager");
 
 // Api's call
 userRouter.post("/signup", userController.createUser);
-userRouter.get("/login", userController.findUser);
+userRouter.post("/login", userController.findUser);
 userRouter.post("/logout", async (req, res) => {
   // expire the cookies
   res.cookie("token", null, { expires: new Date(Date.now()) });

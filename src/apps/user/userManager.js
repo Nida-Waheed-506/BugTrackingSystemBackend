@@ -29,8 +29,13 @@ class UserManager {
     return { user, token };
   };
 
-  getUsers = async (id) => {
-    return await userHandlers.getUsers(id);
+  // get user by name
+  getUsersByName = async (searchingName) => {
+    return await userHandlers.getUsersByName(searchingName);
+  };
+  //get top 5 users
+  getUsers = async () => {
+    return await userHandlers.getUsers();
   };
 }
 

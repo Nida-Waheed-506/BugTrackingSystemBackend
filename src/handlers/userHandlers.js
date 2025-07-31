@@ -33,15 +33,21 @@ class UserHandlers {
     return user;
   };
 
-  getUsers = async (id) => {
-    return await User.findAll({
-      where: { user_type: { [Op.or]: ["developer", "QA"] } },
+  getUser = async (id) => {
+    return await User.findOne({
+      where: { id:id },
     });
   };
 
-  getUser = async (id) => {
-    console.log(id , typeof id);
-    return await User.findOne({ where: { id: id } });
+  getUsersByName = async (searchingName) => {
+  //  case insensitive and also the partial searching 
+    return await User.findOne({ where: {name: { [Op.iLike]: `%${searchingName}%` } , user_type: {[Op.or]: ["developer" , "QA"]} }});
+  };
+   getUsers = async () => {
+    
+    return await User.findAll({where: {user_type: {[Op.or]:['developer' , 'QA']}} ,  limit:5  });
+ 
+  
   };
 }
 

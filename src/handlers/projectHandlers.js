@@ -77,7 +77,7 @@ class ProjectHandlers {
     console.log(project_id, typeof project_id);
     return await Project.findOne({ where: { id: project_id } });
   };
-  projectAssign = async (manager_id, project_id, assigned_UserId) => {
+  projectAssign = async (manager_id, project_id, email) => {
     console.log(typeof project_id);
     // find project exists or not
 
@@ -85,7 +85,7 @@ class ProjectHandlers {
     if (!project) throw new Error("Project does not exist");
 
     // find user exists or not
-    const user = await User.findOne({ where: { id: assigned_UserId } });
+    const user = await User.findOne({ where: { email:email } });
     if (!user) throw new Error("User not exists");
 
     //  find user is QA or developer

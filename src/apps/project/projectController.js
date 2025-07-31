@@ -31,10 +31,11 @@ class ProjectController {
 
   findProjects = async (req, res) => {
     try {
+      
       // get the project
       const projects = await projectManager.findProjects();
       if (projects)
-        res.status(200).json({ message: "Projects Detail", data: projects });
+        res.status(200).json({ message: "Projects Detail", data: [projects , req.user] });
     } catch (error) {
       res.status(404).json({ error: "Projects No Found" });
     }
@@ -79,12 +80,12 @@ class ProjectController {
     try {
       const { id: manager_id } = req.user;
       const { project_id } = req.params;
-      const { assigned_UserId } = req.body;
+      const { email} = req.body;
 
       const projectAssigned = await projectManager.assignProject(
         manager_id,
         parseInt(project_id),
-        assigned_UserId
+        email
       );
       if (projectAssigned)
         res.json({

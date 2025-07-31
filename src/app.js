@@ -4,12 +4,21 @@ require("dotenv").config();
 require("./models/association");
 const { db } = require("./config/db");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 // routes import
 const { userRouter } = require("./routes/user");
 const { projectRouter } = require("./routes/project");
 const { bugRouter } = require("./routes/bug");
 
 // +++++++++++++++++++ imports end ++++++++++++++++++++++++++++++++++++++
+app.use(
+  cors({
+    origin: "http://localhost:4200",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], // Allow GET method explicitly
+    allowedHeaders: ["Content-Type", "Authorization"], // Ensure necessary headers are allowed
+  })
+);
 
 app.use(express.json());
 app.use(cookieParser());

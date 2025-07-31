@@ -29,11 +29,11 @@ class ProjectManager {
     return await projectHandlers.deleteProject(projectId, manager_id);
   };
 
-  assignProject = async (manager_id, project_id, assigned_UserId) => {
+  assignProject = async (manager_id, project_id, email) => {
     const projectAssign = await projectHandlers.projectAssign(
       manager_id,
-      project_id,
-      assigned_UserId
+      parseInt(project_id),
+      email
     );
 
  
