@@ -40,6 +40,7 @@ const Bug = db.define(
     },
     status: {
       type: sequelize.DataTypes.ENUM,
+      default: "new",
       values: ["new", "started", "completed", "resolved"],
       allowNull: false,
       validate: {

@@ -106,7 +106,28 @@ class ProjectHandlers {
     return await project.addUser(user);
   };
 
-  findUsersDevs = async (project_id) => {
+  // top developers
+  findUsersDevsTop = async (project_id) => {
+   
+    const devs = await Project.findOne({
+      where: { id: project_id },
+      attributes :[ 'id' , 'projectName'],
+      include : {
+        model : User,
+        where : {user_type: 'developer' },
+        through : {attributes: []}
+      },
+    
+       
+    });
+    if (devs.length === 0)
+      throw new Error("No developer assigned to that project");
+    return devs;
+  };
+
+  //  developer search by name
+
+   findUsersDevs = async (project_id, searchingName) => {
    
     const devs = await Project.findOne({
       where: { id: project_id },

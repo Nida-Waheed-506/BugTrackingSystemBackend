@@ -98,15 +98,28 @@ class ProjectController {
   };
 
   findUsersDevs = async (req, res, next) => {
+    const {search:searchingName} = req.query;
     const { project_id } = req.params;
-
+    
     try {
-      const allAssignedUsers = await projectManager.findUsersDevs(parseInt(project_id));
-      if (allAssignedUsers)
+      if(searchingName){
+        const assignedUsers = await projectManager.findUsersDevs(parseInt(project_id) , searchingName);
+         if (assignedUsers)
         res.status(200).json({
-          message: "All developers assigned to project",
-          data: allAssignedUsers,
+          message: "Developers Detail",
+          data: Array.isArray(assignedUsers)? assignedUsers : [assignedUsers],
         });
+      
+      }else
+      {
+        const assignedTopUsers = await projectManager.findUsersDevsTop(parseInt(project_id));
+         if (assignedTopUsers)
+        res.status(200).json({
+          message: "Developers Detail",
+          data: assignedTopUsers,
+        });
+      }
+     
     } catch (error) {
       res.status(404).json({ error: error.message });
     }
