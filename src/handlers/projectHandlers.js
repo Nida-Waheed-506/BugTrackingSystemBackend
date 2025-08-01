@@ -1,6 +1,6 @@
 const { Project } = require("../models/project");
 const { User } = require("../models/user");
-
+const { Op } = require("sequelize");
 // +++++++++++++++++++++++++++ imports end ++++++++++++++++++++++++++++++++++++++++
 
 class ProjectHandlers {
@@ -9,13 +9,12 @@ class ProjectHandlers {
 
     const { id } = loggedInUserData;
 
-    const project=  await Project.create({
+    const project = await Project.create({
       projectName: projectName,
       projectDes: projectDes,
       manager_id: id,
       taskDone: taskDone,
       image: image,
-     
     });
 
     await loggedInUserData.addProject(project);
@@ -31,7 +30,6 @@ class ProjectHandlers {
         "taskDone",
         "manager_id",
         "image",
-       
       ],
     });
 
@@ -85,7 +83,7 @@ class ProjectHandlers {
     if (!project) throw new Error("Project does not exist");
 
     // find user exists or not
-    const user = await User.findOne({ where: { email:email } });
+    const user = await User.findOne({ where: { email: email } });
     if (!user) throw new Error("User not exists");
 
     //  find user is QA or developer
@@ -108,18 +106,12 @@ class ProjectHandlers {
 
   // top developers
   findUsersDevsTop = async (project_id) => {
-   
-    const devs = await Project.findOne({
-      where: { id: project_id },
-      attributes :[ 'id' , 'projectName'],
-      include : {
-        model : User,
-        where : {user_type: 'developer' },
-        through : {attributes: []}
-      },
-    
-       
+    const project = await Project.findOne({ where: { id: project_id } });
+    const devs = await project.getUsers({
+      where: { user_type: "developer" },
+      limit: 2,
     });
+
     if (devs.length === 0)
       throw new Error("No developer assigned to that project");
     return devs;
@@ -127,17 +119,15 @@ class ProjectHandlers {
 
   //  developer search by name
 
-   findUsersDevs = async (project_id, searchingName) => {
-   
-    const devs = await Project.findOne({
-      where: { id: project_id },
-      attributes :[ 'id' , 'projectName'],
-      include : {
-        model : User,
-        where : {user_type: 'developer'},
-        through : {attributes: []}
-      }
+  findUsersDevs = async (project_id, searchingName) => {
+    console.log(searchingName);
+    // name: { [Op.iLike]: `%${searchingName}%`
+    const project = await Project.findOne({ where: { id: project_id } });
+    const devs = await project.getUsers({
+      where: {  name: { [Op.iLike]: `%${searchingName}%` } , user_type: "developer" },
+      limit: 2,
     });
+
     if (devs.length === 0)
       throw new Error("No developer assigned to that project");
     return devs;

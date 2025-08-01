@@ -1,4 +1,4 @@
-const { statusValidator } = require("../../utils/statusValidation");
+const { typeValidator} = require("../../utils/typeValidation");
 const { bugHandlers } = require("../../handlers/bugHandlers");
 const { services } = require("../../services/services");
 const { userHandlers } = require("../../handlers/userHandlers");
@@ -7,9 +7,9 @@ const { userHandlers } = require("../../handlers/userHandlers");
 
 class BugManager {
   createBug = async (project_id, QA_id, screenshot, bugDetails) => {
-    const { type, status } = bugDetails;
-
-    statusValidator(type, status);
+    const { type , developer_id } = bugDetails;
+    console.log(developer_id , ".......................................");
+  typeValidator(type);
 
     const bug = await bugHandlers.createBug(
       project_id,
@@ -18,14 +18,17 @@ class BugManager {
       bugDetails
     );
 
+ 
+  
+    // if (bug) {
+    //   const {developer_id } = bugDetails;
+    //   console.log("nida");
+    //   developer_id.map(async(developer_id)=>{
+    //   const user = await userHandlers.getUser(developer_id);
 
-   
-    if (bug) {
-      const {developer_id } = bugDetails;
-      const user = await userHandlers.getUser(developer_id);
-
-      services.sendEmail(user, bug, "bug");
-    }
+    //   services.sendEmail(user, bug, "bug");
+    //   })
+    // }
 
     return bug;
   };

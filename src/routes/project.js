@@ -5,6 +5,7 @@ const { isManager } = require("../middleware/isManager");
 const { projectController } = require("../apps/project/projectController");
 
 const multer = require("multer");
+const { isQA } = require("../middleware/isQA");
 //configure multer to store files in memory as buffer
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -47,10 +48,10 @@ projectRouter.post(
   projectController.assignProject
 );
 
-// get the developers
+// get the  developers
 
 projectRouter.get(
-  "/projects/:project_id/users/developers",
+  "/projects/:project_id/users/developers", userAuth , isQA,
   projectController.findUsersDevs
 );
 

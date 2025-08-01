@@ -5,10 +5,10 @@ const { bugManager } = require("./bugManager");
 class BugController {
   createBug = async (req, res, next) => {
     try {
-      const { project_id } = req.body;
-
+      const { project_id , developer_id} = req.body;
+     
       const { id: QA_id } = req.user;
-
+   
       const bug = await bugManager.createBug(
         project_id,
         QA_id,
@@ -17,6 +17,9 @@ class BugController {
       );
       if (bug) res.status(201).json({ message: "Bug is created", data: bug });
     } catch (error) {
+
+    
+
       if (error.name === "SequelizeUniqueConstraintError") {
         return res.status(400).json({
           error: "Bug with this title already exists.",
@@ -32,11 +35,12 @@ class BugController {
         });
       }
 
+    
       if (error instanceof Error) {
         return res.status(400).json({ error: error.message });
       }
 
-      return res.status(500).json({ error: "Unexpected error" });
+    //   return res.status(500).json({ error: "Unexpected error" });
     }
   };
 
@@ -74,6 +78,7 @@ class BugController {
         res.json({ message: "Status of change successfully", data: bug });
       else throw new Error("Status does not change");
     } catch (error) {
+      console.log(error);
       if (error instanceof Error) {
         return res.status(400).json({ error: error.message });
       }

@@ -4,6 +4,9 @@ const { db } = require("../config/db");
 const Bug = db.define(
   "Bug",
   {
+    bugCounter: {
+      type: sequelize.DataTypes.INTEGER,
+    },
     title: {
       type: sequelize.DataTypes.STRING,
       allowNull: false,
@@ -40,12 +43,10 @@ const Bug = db.define(
     },
     status: {
       type: sequelize.DataTypes.ENUM,
-      default: "new",
+      defaultValue: "new",
       values: ["new", "started", "completed", "resolved"],
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-      },
+     
+      
     },
     project_id: {
       type: sequelize.DataTypes.INTEGER,
@@ -54,10 +55,21 @@ const Bug = db.define(
       type: sequelize.DataTypes.STRING,
     },
     developer_id: {
-      type: sequelize.DataTypes.STRING,
+      type: sequelize.DataTypes.ARRAY(sequelize.DataTypes.INTEGER),
     },
   },
   { tablename: "Bugs" }
 );
+
+Bug.beforeCreate(async (bug) => {
+  const maxBug = await Bug.findOne({
+    where: { project_id: bug.project_id },
+    order: [["bugCounter", "DESC"]],
+  });
+
+  bug.bugCounter = maxBug? bug.bugCounter + 1: 1
+});
+
+
 
 module.exports = { Bug };

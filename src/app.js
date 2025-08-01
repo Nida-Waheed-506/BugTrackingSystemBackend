@@ -13,7 +13,7 @@ const { bugRouter } = require("./routes/bug");
 // +++++++++++++++++++ imports end ++++++++++++++++++++++++++++++++++++++
 app.use(
   cors({
-    origin: "http://localhost:45061",
+    origin: "http://localhost:4200",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], // Allow GET method explicitly
     allowedHeaders: ["Content-Type", "Authorization"], // Ensure necessary headers are allowed
@@ -31,7 +31,7 @@ const startServer = async () => {
     await db.authenticate();
     console.log("Connection has been established successfully.");
 
-    await db.sync({ force: false, alter: false, logging: false });
+    await db.sync({ force:false, alter: false, logging: false });
     console.log("All models were synchronized successfully.");
 
     app.listen(process.env.SERVER_PORT, () => {

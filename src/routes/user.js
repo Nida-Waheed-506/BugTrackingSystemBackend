@@ -17,4 +17,7 @@ userRouter.post("/logout", async (req, res) => {
 });
 userRouter.get("/users", userAuth, isManager, userController.getUsers);
 
+userRouter.get("/auth", userAuth, async(req,res)=>{
+  res.status(200).json({message : "Logged In user detail" , data: req.user});
+});
 module.exports = { userRouter };

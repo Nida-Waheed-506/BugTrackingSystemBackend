@@ -49,7 +49,7 @@ class ProjectManager {
 
 
   findUsersDevs = async (project_id , searchingName) => {
-    return await projectHandlers.findUsersDevs(project_id);
+    return await projectHandlers.findUsersDevs(project_id , searchingName);
   }
 
   findUsersDevsTop = async (project_id) => {
