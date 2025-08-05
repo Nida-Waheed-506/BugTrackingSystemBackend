@@ -5,10 +5,10 @@ const { bugManager } = require("./bugManager");
 class BugController {
   createBug = async (req, res, next) => {
     try {
-      const { project_id , developer_id} = req.body;
-     
+      const { project_id } = req.body;
+
       const { id: QA_id } = req.user;
-   
+
       const bug = await bugManager.createBug(
         project_id,
         QA_id,
@@ -17,9 +17,6 @@ class BugController {
       );
       if (bug) res.status(201).json({ message: "Bug is created", data: bug });
     } catch (error) {
-
-    
-
       if (error.name === "SequelizeUniqueConstraintError") {
         return res.status(400).json({
           error: "Bug with this title already exists.",
@@ -35,25 +32,25 @@ class BugController {
         });
       }
 
-    
       if (error instanceof Error) {
         return res.status(400).json({ error: error.message });
       }
 
-    //   return res.status(500).json({ error: "Unexpected error" });
+      return res.status(500).json({ error: "Unexpected error" });
     }
   };
 
   findBugs = async (req, res, next) => {
     try {
-      const { project_id } = req.body;
+      const { project_id } = req.query;
 
-      const bugs = await bugManager.findBugs(project_id);
+      const bugs = await bugManager.findBugs(parseInt(project_id));
 
       if (bugs.length !== 0)
         res.json({ message: "Feature & Bugs of this project : ", data: bugs });
       else throw new Error("This project has no feature or bugs to list");
     } catch (error) {
+      console.log(error);
       if (error instanceof Error) {
         return res.status(404).json({ error: error.message });
       }

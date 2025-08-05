@@ -37,6 +37,11 @@ class UserManager {
   getUsers = async () => {
     return await userHandlers.getUsers();
   };
+  // get user by id
+
+  getUser = async (id) => {
+    return await userHandlers.getUser(id);
+  };
 }
 
 const userManager = new UserManager();

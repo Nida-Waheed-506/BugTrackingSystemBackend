@@ -51,10 +51,10 @@ projectRouter.post(
 // get the  developers
 
 projectRouter.get(
-  "/projects/:project_id/users/developers", userAuth , isQA,
+  "/projects/:project_id/users/developers",
+  userAuth,
+  isQA,
   projectController.findUsersDevs
 );
-
-// get all the developers of the project
 
 module.exports = { projectRouter };

@@ -31,11 +31,12 @@ class ProjectController {
 
   findProjects = async (req, res) => {
     try {
-      
       // get the project
       const projects = await projectManager.findProjects();
       if (projects)
-        res.status(200).json({ message: "Projects Detail", data: [projects , req.user] });
+        res
+          .status(200)
+          .json({ message: "Projects Detail", data: [projects, req.user] });
     } catch (error) {
       res.status(404).json({ error: "Projects No Found" });
     }
@@ -80,7 +81,7 @@ class ProjectController {
     try {
       const { id: manager_id } = req.user;
       const { project_id } = req.params;
-      const { email} = req.body;
+      const { email } = req.body;
 
       const projectAssigned = await projectManager.assignProject(
         manager_id,
@@ -98,30 +99,35 @@ class ProjectController {
   };
 
   findUsersDevs = async (req, res, next) => {
-    const {search:searchingName} = req.query;
+    const { search: searchingName } = req.query;
     const { project_id } = req.params;
-    
+
     try {
-      if(searchingName){
-        const assignedUsers = await projectManager.findUsersDevs(parseInt(project_id) , searchingName);
-         if (assignedUsers)
-        res.status(200).json({
-          message: "Developers Detail",
-          data: Array.isArray(assignedUsers)? assignedUsers : [assignedUsers],
-        });
-      
-      }else
-      {
-        const assignedTopUsers = await projectManager.findUsersDevsTop(parseInt(project_id));
-         if (assignedTopUsers)
-        res.status(200).json({
-          message: "Developers Detail",
-          data: assignedTopUsers,
-        });
+      if (searchingName) {
+        const assignedUsers = await projectManager.findUsersDevs(
+          parseInt(project_id),
+          searchingName
+        );
+        console.log(assignedUsers);
+        if (assignedUsers)
+          res.status(200).json({
+            message: "Developers Detail",
+            data: Array.isArray(assignedUsers)
+              ? assignedUsers
+              : [assignedUsers],
+          });
+      } else {
+        const assignedTopUsers = await projectManager.findUsersDevsTop(
+          parseInt(project_id)
+        );
+        if (assignedTopUsers)
+          res.status(200).json({
+            message: "Developers Detail",
+            data: assignedTopUsers,
+          });
       }
-     
     } catch (error) {
-      console.log(error)
+      console.log(error);
       res.status(404).json({ error: error.message });
     }
   };

@@ -45,17 +45,15 @@ const Bug = db.define(
       type: sequelize.DataTypes.ENUM,
       defaultValue: "new",
       values: ["new", "started", "completed", "resolved"],
-     
-      
     },
     project_id: {
       type: sequelize.DataTypes.INTEGER,
     },
     QA_id: {
-      type: sequelize.DataTypes.STRING,
+      type: sequelize.DataTypes.INTEGER,
     },
     developer_id: {
-      type: sequelize.DataTypes.ARRAY(sequelize.DataTypes.INTEGER),
+      type: sequelize.DataTypes.ARRAY(sequelize.DataTypes.STRING),
     },
   },
   { tablename: "Bugs" }
@@ -67,9 +65,7 @@ Bug.beforeCreate(async (bug) => {
     order: [["bugCounter", "DESC"]],
   });
 
-  bug.bugCounter = maxBug? bug.bugCounter + 1: 1
+  bug.bugCounter = maxBug ? maxBug.bugCounter + 1 : 1;
 });
-
-
 
 module.exports = { Bug };

@@ -10,16 +10,17 @@ class BugHandlers {
     const { title, description, deadline, type, status, developer_id } =
       bugDetails;
 
-      console.log(developer_id);
     //project exists or  not
 
-    const project = await Project.findOne({ where: { id: project_id } });
+    const project = await Project.findOne({
+      where: { id: parseInt(project_id) },
+    });
     if (!project) throw new Error("Project not exists");
 
     //QA is assigned to that project or not by the manager
 
     const isValidQAToProject = await Project.findOne({
-      where: { id: project_id },
+      where: { id: parseInt(project_id) },
       include: {
         model: User,
         where: { id: QA_id, user_type: "QA" },
@@ -49,8 +50,6 @@ class BugHandlers {
 
     //Create the bug
 
-    console.log("developer_id before create:", developer_id);
-
     const bug = await Bug.create({
       title: title,
       description: description,
@@ -58,11 +57,10 @@ class BugHandlers {
       screenshot: screenshot,
       type: type,
       status: status,
-      project_id: project_id,
+      project_id: parseInt(project_id),
       QA_id: QA_id,
-      
+      developer_id: JSON.parse(developer_id),
     });
-
 
     await project.addBug(bug);
     return bug;
@@ -97,7 +95,10 @@ class BugHandlers {
     const isValidUser = await Bug.findOne({
       where: {
         project_id: project_id,
-        [Op.or]: [{ developer_id: user_id }, { QA_id: user_id }],
+        [Op.or]: [
+          { developer_id: { [Op.contains]: user_id } },
+          { QA_id: user_id },
+        ],
       },
     });
     if (!isValidUser)

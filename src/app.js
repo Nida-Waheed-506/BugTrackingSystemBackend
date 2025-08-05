@@ -21,6 +21,7 @@ app.use(
 );
 
 app.use(express.json());
+
 app.use(cookieParser());
 app.use("/", userRouter);
 app.use("/", projectRouter);
@@ -31,7 +32,7 @@ const startServer = async () => {
     await db.authenticate();
     console.log("Connection has been established successfully.");
 
-    await db.sync({ force:false, alter: false, logging: false });
+    await db.sync({ force: false, alter: false, logging: false });
     console.log("All models were synchronized successfully.");
 
     app.listen(process.env.SERVER_PORT, () => {
