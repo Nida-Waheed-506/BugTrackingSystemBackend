@@ -31,8 +31,8 @@ class BugManager {
     return bug;
   };
 
-  findBugs = async (project_id) => {
-    return await bugHandlers.findBugs(project_id);
+  findBugs = async (project_id,limit,offset) => {
+    return await bugHandlers.findBugs(project_id,limit,offset);
   };
 
   changeBugStatus = async (project_id, id, status, user_id) => {

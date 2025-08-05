@@ -3,6 +3,7 @@ const { projectManager } = require("./projectManager");
 
 class ProjectController {
   createProject = async (req, res, next) => {
+   
     try {
       const project = await projectManager.createProject(
         req.body,
@@ -30,14 +31,20 @@ class ProjectController {
   };
 
   findProjects = async (req, res) => {
+    console.log("heeloo");
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 10;
+     const offset = (page-1)*limit;
+ 
     try {
       // get the project
-      const projects = await projectManager.findProjects();
+      const {projects , count} = await projectManager.findProjects(limit,offset);
       if (projects)
         res
           .status(200)
-          .json({ message: "Projects Detail", data: [projects, req.user] });
+          .json({ message: "Projects Detail", data: [count , projects, req.user] });
     } catch (error) {
+      console.log(error);
       res.status(404).json({ error: "Projects No Found" });
     }
   };

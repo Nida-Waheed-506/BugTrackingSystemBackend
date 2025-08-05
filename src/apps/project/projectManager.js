@@ -13,8 +13,8 @@ class ProjectManager {
     );
   };
 
-  findProjects = async () => {
-    return await projectHandlers.findProjects();
+  findProjects = async (limit,offset) => {
+    return await projectHandlers.findProjects(limit,offset);
   };
 
   updateProject = async (projectId, manager_id, projectData) => {

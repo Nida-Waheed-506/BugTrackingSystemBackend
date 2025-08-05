@@ -4,6 +4,7 @@ const { bugManager } = require("./bugManager");
 
 class BugController {
   createBug = async (req, res, next) => {
+    
     try {
       const { project_id } = req.body;
 
@@ -41,10 +42,16 @@ class BugController {
   };
 
   findBugs = async (req, res, next) => {
+
+     const page = req.query.page || 1;
+    const limit = req.query.limit || 10;
+    console.log(page,limit);
+     const offset = (page-1)*limit;
+    
     try {
       const { project_id } = req.query;
 
-      const bugs = await bugManager.findBugs(parseInt(project_id));
+      const bugs = await bugManager.findBugs(parseInt(project_id) , limit,offset);
 
       if (bugs.length !== 0)
         res.json({ message: "Feature & Bugs of this project : ", data: bugs });
@@ -64,6 +71,7 @@ class BugController {
       const { bug_id: id } = req.params;
       const { project_id, status } = req.body;
       const { id: user_id } = req.user;
+      console.log(id , project_id , status);
       const bug = await bugManager.changeBugStatus(
         project_id,
         id,

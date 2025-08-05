@@ -21,28 +21,31 @@ class ProjectHandlers {
     return project;
   };
 
-  findProjects = async () => {
-    const projects = await Project.findAll({
-      attributes: [
-        "id",
-        "projectName",
-        "projectDes",
-        "taskDone",
-        "manager_id",
-        "image",
-      ],
-    });
+findProjects = async (limit, offset) => {
+  console.log(limit, offset);
+  const { count, rows } = await Project.findAndCountAll({
+    limit,
+    offset,
+    attributes: [
+      "id",
+      "projectName",
+      "projectDes",
+      "taskDone",
+      "manager_id",
+      "image",
+    ],
+  });
 
-    return projects.map((project) => {
-      const projectJSON = project.toJSON();
-
-      if (projectJSON.image) {
-        projectJSON.image = projectJSON.image.toString("base64");
-      }
-
-      return projectJSON;
-    });
-  };
+  const projects = rows.map((project) => {
+    const projectJSON = project.toJSON();
+    if (projectJSON.image) {
+      projectJSON.image = projectJSON.image.toString("base64");
+    }
+    return projectJSON;
+  });
+  
+  return {projects , count} ;
+};
 
   updateProject = async (projectId, manager_id, projectData) => {
     const project = await Project.findOne({

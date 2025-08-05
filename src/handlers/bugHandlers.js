@@ -66,41 +66,47 @@ class BugHandlers {
     return bug;
   };
 
-  findBugs = async (project_id) => {
-    return await Project.findOne({
-      where: { id: project_id },
-      attributes: ["id", "projectName"],
-      include: {
-        model: Bug,
-        attributes: [
-          "title",
-          "description",
-          "deadline",
-          "screenshot",
-          "type",
-          "status",
-          "project_id",
-          "QA_id",
-          "developer_id",
-        ],
-      },
-    });
-  };
+ findBugs = async (project_id, limit, offset) => {
+  return await Bug.findAndCountAll({
+    where: { project_id: project_id },
+    limit,
+    offset,
+    attributes: [
+      "id",
+      "title",
+      "description",
+      "deadline",
+      "screenshot",
+      "type",
+      "status",
+      "project_id",
+      "QA_id",
+      "developer_id",
+    ],
+  });
+};
 
   changeBugStatus = async (project_id, id, status, user_id) => {
     const obj = await Bug.findOne({ where: { id: parseInt(id) } });
     if (!obj) throw new Error("This bug or feature not exist");
-    statusValidator(obj.type, status);
-
+    
+  
+    console.log(project_id , user_id );
     const isValidUser = await Bug.findOne({
       where: {
         project_id: project_id,
+        id : id,
         [Op.or]: [
-          { developer_id: { [Op.contains]: user_id } },
+          { developer_id: { [Op.contains]: [user_id] } },
           { QA_id: user_id },
         ],
       },
     });
+
+  
+
+
+    console.log("1");
     if (!isValidUser)
       throw new Error("You are not assigned to the bug of that project");
 
