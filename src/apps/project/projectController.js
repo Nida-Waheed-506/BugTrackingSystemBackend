@@ -3,7 +3,6 @@ const { projectManager } = require("./projectManager");
 
 class ProjectController {
   createProject = async (req, res, next) => {
-   
     try {
       const project = await projectManager.createProject(
         req.body,
@@ -34,18 +33,29 @@ class ProjectController {
     console.log("heeloo");
     const page = req.query.page || 1;
     const limit = req.query.limit || 10;
-     const offset = (page-1)*limit;
- 
+    const offset = (page - 1) * limit;
+
     try {
       // get the project
-      const {projects , count} = await projectManager.findProjects(limit,offset);
-      if (projects)
+      const { projects, count } = await projectManager.findProjects(
+        limit,
+        offset
+      );
+      if (projects) {
         res
           .status(200)
-          .json({ message: "Projects Detail", data: [count , projects, req.user] });
+          .json({
+            message: "Projects Detail",
+            data: [count, projects, req.user],
+          });
+      } else res.status(404).json({ error: "Projects No Found" });
     } catch (error) {
-      console.log(error);
-      res.status(404).json({ error: "Projects No Found" });
+      //   Errors which thrown by Error instance
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message });
+      }
+
+      return res.status(500).json({ error: "Unexpected error" });
     }
   };
 
@@ -64,7 +74,13 @@ class ProjectController {
           .status(200)
           .json({ message: "Project updated successfully", data: project });
     } catch (error) {
-      res.status(404).json({ error: error.message });
+      // res.status(404).json({ error: error.message });
+      //   Errors which thrown by Error instance
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message });
+      }
+
+      return res.status(500).json({ error: "Unexpected error" });
     }
   };
 
@@ -80,7 +96,13 @@ class ProjectController {
       if (project)
         res.status(200).json({ message: "Project deleted successfully" });
     } catch (error) {
-      res.status(404).json({ error: error.message });
+      // res.status(404).json({ error: error.message });
+      //   Errors which thrown by Error instance
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message });
+      }
+
+      return res.status(500).json({ error: "Unexpected error" });
     }
   };
 
@@ -101,7 +123,12 @@ class ProjectController {
           data: projectAssigned,
         });
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      // res.status(400).json({ error: error.message }); //   Errors which thrown by Error instance
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message });
+      }
+
+      return res.status(500).json({ error: "Unexpected error" });
     }
   };
 
@@ -134,8 +161,14 @@ class ProjectController {
           });
       }
     } catch (error) {
-      console.log(error);
-      res.status(404).json({ error: error.message });
+      // console.log(error);
+      // res.status(404).json({ error: error.message });
+      //   Errors which thrown by Error instance
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message });
+      }
+
+      return res.status(500).json({ error: "Unexpected error" });
     }
   };
 }

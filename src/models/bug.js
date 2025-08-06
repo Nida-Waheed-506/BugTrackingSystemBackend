@@ -23,7 +23,7 @@ const Bug = db.define(
       type: sequelize.DataTypes.DATEONLY,
       validate: {
         customValidator(value) {
-          if (new Date(value) <= new Date()) {
+          if (new Date(value) < new Date()) {
             throw new Error("invalid date");
           }
         },

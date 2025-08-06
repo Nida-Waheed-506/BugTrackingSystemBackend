@@ -26,14 +26,14 @@ findProjects = async (limit, offset) => {
   const { count, rows } = await Project.findAndCountAll({
     limit,
     offset,
-    attributes: [
-      "id",
-      "projectName",
-      "projectDes",
-      "taskDone",
-      "manager_id",
-      "image",
-    ],
+    // attributes: [
+    //   "id",
+    //   "projectName",
+    //   "projectDes",
+    //   "taskDone",
+    //   "manager_id",
+    //   "image",
+    // ],
   });
 
   const projects = rows.map((project) => {

@@ -23,6 +23,8 @@ bugRouter.post(
 );
 //get the bugs of the project with detail
 bugRouter.get("/bugs", userAuth, bugController.findBugs);
+// delete the bug of the project
+bugRouter.delete("/bugs/:bug_id" , userAuth, isQA , bugController.deleteBug );
 //Developer & QA update the status
 bugRouter.patch(
   "/bugs/:bug_id/status",

@@ -31,6 +31,15 @@ class BugManager {
     return bug;
   };
 
+  deleteBug = async(project_id, QA_id , bug_id)=>{
+     return await bugHandlers.deleteBug(
+      project_id,
+      QA_id,
+      parseInt(bug_id)
+    );
+  }
+
+
   findBugs = async (project_id,limit,offset) => {
     return await bugHandlers.findBugs(project_id,limit,offset);
   };

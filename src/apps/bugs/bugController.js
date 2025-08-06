@@ -4,7 +4,6 @@ const { bugManager } = require("./bugManager");
 
 class BugController {
   createBug = async (req, res, next) => {
-    
     try {
       const { project_id } = req.body;
 
@@ -41,23 +40,55 @@ class BugController {
     }
   };
 
-  findBugs = async (req, res, next) => {
+deleteBug = async(req, res, next)=>{
+ try {
+     
+      const {bug_id} = req.params;
+      const { project_id } = req.query;
 
-     const page = req.query.page || 1;
+      const { id: QA_id } = req.user;
+
+      const bug = await bugManager.deleteBug(
+        project_id,
+        QA_id,
+        bug_id
+      
+      );
+      if (bug) res.status(201).json({ message: "Bug deleted successfully" });
+    } catch (error) {
+     
+      
+      
+
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message });
+      }
+
+      return res.status(500).json({ error: "Unexpected error" });
+    }
+  }
+
+
+  findBugs = async (req, res, next) => {
+    const page = req.query.page || 1;
     const limit = req.query.limit || 10;
-    console.log(page,limit);
-     const offset = (page-1)*limit;
-    
+    console.log(page, limit);
+    const offset = (page - 1) * limit;
+
     try {
       const { project_id } = req.query;
 
-      const bugs = await bugManager.findBugs(parseInt(project_id) , limit,offset);
+      const bugs = await bugManager.findBugs(
+        parseInt(project_id),
+        limit,
+        offset
+      );
 
       if (bugs.length !== 0)
         res.json({ message: "Feature & Bugs of this project : ", data: bugs });
       else throw new Error("This project has no feature or bugs to list");
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       if (error instanceof Error) {
         return res.status(404).json({ error: error.message });
       }
@@ -71,7 +102,7 @@ class BugController {
       const { bug_id: id } = req.params;
       const { project_id, status } = req.body;
       const { id: user_id } = req.user;
-      console.log(id , project_id , status);
+      console.log(id, project_id, status);
       const bug = await bugManager.changeBugStatus(
         project_id,
         id,
@@ -83,7 +114,7 @@ class BugController {
         res.json({ message: "Status of change successfully", data: bug });
       else throw new Error("Status does not change");
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       if (error instanceof Error) {
         return res.status(400).json({ error: error.message });
       }

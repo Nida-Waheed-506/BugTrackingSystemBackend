@@ -33,20 +33,7 @@ class BugHandlers {
         "You (with profession QA ) are not assigned to that project"
       );
 
-    // That QA assign project to which developer which is already assigned to that project by manager
-
-    // const isValidDevToProject = await Project.findOne({
-    //   where : {id : project_id},
-    //   include : {
-    //     model : User,
-    //     where : {id: developer_id , user_type:'developer'},
-    //     through : {attributes:[]}
-    //     }
-
-    // });
-
-    // if (!isValidDevToProject)
-    //   throw new Error("To which developer you assign , it not exists ");
+  
 
     //Create the bug
 
@@ -65,6 +52,43 @@ class BugHandlers {
     await project.addBug(bug);
     return bug;
   };
+
+deleteBug = async(project_id, QA_id , bug_id)=>{
+
+  console.log("..............." , project_id , QA_id , typeof bug_id ,".......");
+    //project exists or  not
+
+    const project = await Project.findOne({
+      where: { id: parseInt(project_id) },
+    });
+    if (!project) throw new Error("Project not exists");
+
+    //QA is assigned to that project or not by the manager
+
+    const isValidQAToProject = await Project.findOne({
+      where: { id: parseInt(project_id) },
+      include: {
+        model: User,
+        where: { id: QA_id, user_type: "QA" },
+        through: { attributes: [] },
+      },
+    });
+
+    if (!isValidQAToProject)
+      throw new Error(
+        "You (with profession QA ) are not assigned to that project"
+      );
+    
+    // DB query to delete the bug 
+    const bug = await Bug.findOne({where : {id: bug_id}});
+    console.log(bug);
+    if(bug){
+      return await bug.destroy();
+      
+    }else {
+      throw new Error("Bug not exists");
+    }
+  }
 
  findBugs = async (project_id, limit, offset) => {
   return await Bug.findAndCountAll({

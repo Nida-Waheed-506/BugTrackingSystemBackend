@@ -42,7 +42,13 @@ class UserController {
         res.status(200).json({ message: "Logged-in successfully", data: user });
       } else throw new Error("Invalid credentials");
     } catch (error) {
-      res.status(404).json({ error: error.message });
+      // res.status(404).json({ error: error.message });
+       //   Errors which thrown by Error instance
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message });
+      }
+
+      return res.status(500).json({ error: "Unexpected error" });
     }
   };
 
@@ -64,7 +70,13 @@ class UserController {
         return res.json({ data: topUsers });
       }
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      // res.status(400).json({ error: error.message });
+       //   Errors which thrown by Error instance
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message });
+      }
+
+      return res.status(500).json({ error: "Unexpected error" });
     }
   };
 
@@ -78,7 +90,13 @@ class UserController {
 
     return res.status(200).json({ data: user });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    // res.status(400).json({ error: error.message }); //   Errors which thrown by Error instance
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message });
+      }
+
+      return res.status(500).json({ error: "Unexpected error" });
+
   }
 };
 
