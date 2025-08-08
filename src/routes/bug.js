@@ -21,6 +21,15 @@ bugRouter.post(
   upload.single("screenshot"),
   bugController.createBug
 );
+
+// bug edited by the QA only
+bugRouter.patch(
+  "/bugs/:bug_id",
+  userAuth,
+  isQA,
+  upload.single("screenshot"),
+  bugController.editBug
+)
 //get the bugs of the project with detail
 bugRouter.get("/bugs", userAuth, bugController.findBugs);
 // delete the bug of the project
@@ -32,5 +41,14 @@ bugRouter.patch(
   isQAorDev,
   bugController.changeBugStatus
 );
+
+
+
+// is QA belong to project
+
+bugRouter.get("/bugs/:project_id" , userAuth , isQA , bugController.isQABelongToProject);
+// is QA belong to specific bug of specific project
+bugRouter.get("/bugs/:bug_id/:project_id", userAuth , isQA ,  bugController.isQABelongToBug);
+
 
 module.exports = { bugRouter };

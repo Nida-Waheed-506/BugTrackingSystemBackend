@@ -57,4 +57,11 @@ projectRouter.get(
   projectController.findUsersDevs
 );
 
+// is Manager belong to specific project
+
+projectRouter.get("/projects/:project_id", userAuth , isManager ,  projectController.isProjectManager)
+
+
+
+
 module.exports = { projectRouter };

@@ -47,6 +47,17 @@ findProjects = async (limit, offset) => {
   return {projects , count} ;
 };
 
+
+  isProjectManager = async (project_id, manager_id) => {
+    const project = await Project.findOne({
+      where: { id: project_id, manager_id: manager_id },
+    });
+
+    if(!project) throw new Error("You are not manager of that project");
+    return project;
+    
+  };
+
   updateProject = async (projectId, manager_id, projectData) => {
     const project = await Project.findOne({
       where: { id: projectId, manager_id: manager_id },

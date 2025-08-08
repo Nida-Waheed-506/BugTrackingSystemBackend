@@ -42,12 +42,10 @@ class ProjectController {
         offset
       );
       if (projects) {
-        res
-          .status(200)
-          .json({
-            message: "Projects Detail",
-            data: [count, projects, req.user],
-          });
+        res.status(200).json({
+          message: "Projects Detail",
+          data: [count, projects, req.user],
+        });
       } else res.status(404).json({ error: "Projects No Found" });
     } catch (error) {
       //   Errors which thrown by Error instance
@@ -164,6 +162,26 @@ class ProjectController {
       // console.log(error);
       // res.status(404).json({ error: error.message });
       //   Errors which thrown by Error instance
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message });
+      }
+
+      return res.status(500).json({ error: "Unexpected error" });
+    }
+  };
+
+  isProjectManager = async (req, res, next) => {
+    try {
+      
+      const { project_id } = req.params;
+      const { id: manager_id } = req.user;
+      const project = await projectManager.isProjectManager(
+        parseInt(project_id),
+        parseInt(manager_id)
+      );
+      if (project)
+        res.status(200).json({ message: "You are  manager of that project" });
+    } catch (error) {
       if (error instanceof Error) {
         return res.status(400).json({ error: error.message });
       }
