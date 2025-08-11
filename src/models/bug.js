@@ -21,13 +21,13 @@ const Bug = db.define(
     },
     deadline: {
       type: sequelize.DataTypes.DATEONLY,
-      validate: {
-        customValidator(value) {
-          if (new Date(value) < new Date()) {
-            throw new Error("invalid date");
-          }
-        },
-      },
+      // validate: {
+      //   customValidator(value) {
+      //     if (new Date(value) < new Date()) {
+      //       throw new Error("Invalid date");
+      //     }
+      //   },
+      // },
     },
     screenshot: {
       type: sequelize.DataTypes.BLOB(),

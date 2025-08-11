@@ -24,11 +24,10 @@ class BugController {
       }
 
       if (error.name === "SequelizeValidationError") {
+        console.log(error.name);
         return res.status(400).json({
-          error:
-            error.errors[0].message === "invalid date"
-              ? error.errors[0].message
-              : "Title , type , status must be filled",
+          error: error.errors[0].message,
+           
         });
       }
 
