@@ -1,5 +1,6 @@
 const { Project } = require("../models/project");
 const { User } = require("../models/user");
+const {Bug} = require("../models/bug");
 const { Op } = require("sequelize");
 // +++++++++++++++++++++++++++ imports end ++++++++++++++++++++++++++++++++++++++++
 
@@ -26,14 +27,10 @@ findProjects = async (limit, offset) => {
   const { count, rows } = await Project.findAndCountAll({
     limit,
     offset,
-    // attributes: [
-    //   "id",
-    //   "projectName",
-    //   "projectDes",
-    //   "taskDone",
-    //   "manager_id",
-    //   "image",
-    // ],
+    include:[
+      {model:Bug}
+    ]
+   
   });
 
   const projects = rows.map((project) => {
