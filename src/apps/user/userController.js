@@ -1,33 +1,41 @@
 const { userManager } = require("./userManager");
+const { static_keywords } = require("../../utils/constants");
+const {
+  ERRORS_MESSAGES,
+  ERRORS_NAMES,
+  SUCCESS_MESSAGES,
+} = require("../../utils/response");
 
+const {
+  http_response_status_codes,
+} = require("../../utils/http_response_status_codes");
 // +++++++++++++++++++++++++ imports end +++++++++++++++++++++++++++++++++++++++
 
 class UserController {
   createUser = async (req, res) => {
     try {
       const { user, token } = await userManager.createUser(req.body);
-      // 8 hours × 60 minutes × 60 seconds × 1000 milliseconds
-      res.cookie("token", token, {
+
+      res.cookie(static_keywords.cookie_name, token, {
         expires: new Date(Date.now() + 8 * 3600000),
       });
-      res.status(201).json({ message: "Sign-up Successfully ", data: user });
+      res
+        .status(http_response_status_codes[201])
+        .json({ message: SUCCESS_MESSAGES.user.user_signup, data: user });
     } catch (error) {
-      if (error.name === "SequelizeValidationError") {
-        return res.status(400).json({
-          error: "Invalid email format",
+      if (error.name === ERRORS_NAMES.SequelizeValidationError) {
+        return res.status(http_response_status_codes[400]).json({
+          error: ERRORS_MESSAGES.user.invalid_email_format,
         });
-      } else if (error.name === "SequelizeUniqueConstraintError") {
-        return res.status(409).json({
-          error: "User already exists",
+      } else if (error.name === ERRORS_NAMES.SequelizeUniqueConstraintError) {
+        return res.status(http_response_status_codes[409]).json({
+          error: ERRORS_MESSAGES.user.user_confict,
         });
       }
 
-      //   Errors which thrown by Error instance
-      if (error instanceof Error) {
-        return res.status(400).json({ error: error.message });
-      }
-
-      return res.status(500).json({ error: "Unexpected error" });
+      return res
+        .status(http_response_status_codes[500])
+        .json({ error: ERRORS_MESSAGES.unexpected_error });
     }
   };
 
@@ -35,74 +43,87 @@ class UserController {
     try {
       const { user, token } = await userManager.findUser(req.body);
       if (user) {
-        // 8 hours × 60 minutes × 60 seconds × 1000 milliseconds
-        res.cookie("token", token, {
+        res.cookie(static_keywords.cookie_name, token, {
           expires: new Date(Date.now() + 8 * 3600000),
         });
-        res.status(200).json({ message: "Logged-in successfully", data: user });
-      } else throw new Error("Invalid credentials");
+        res
+          .status(http_response_status_codes[200])
+          .json({ message: SUCCESS_MESSAGES.user.user_login, data: user });
+      } else throw new Error(ERRORS_MESSAGES.user.unauthorized_user);
     } catch (error) {
-      // res.status(404).json({ error: error.message });
-       //   Errors which thrown by Error instance
-      if (error instanceof Error) {
-        return res.status(400).json({ error: error.message });
+      console.log(error);
+      if (
+        error instanceof Error &&
+        error.message.startsWith(ERRORS_MESSAGES.user.unauthorized_user)
+      ) {
+        console.log("hello");
+        return res
+          .status(http_response_status_codes[401])
+          .json({ error: error.message });
       }
 
-      return res.status(500).json({ error: "Unexpected error" });
+      return res
+        .status(http_response_status_codes[500])
+        .json({ error: ERRORS_MESSAGES.unexpected_error });
     }
   };
 
   getUsers = async (req, res) => {
     try {
       const { search: searchingName } = req.query;
-      console.log(searchingName);
-      if (searchingName) {
-       
-        const users = await userManager.getUsersByName(searchingName);
-        if (!users) throw new Error("No user exist");
-         
-        res.status(200).json({ message: "Users Detail ", data: Array.isArray(users) ? users : [users] });
-      }
 
-      else {
-       
+      if (searchingName) {
+        const users = await userManager.getUsersByName(searchingName);
+        if (!users) throw new Error(ERRORS_MESSAGES.user.users_not_found);
+
+        res.status(http_response_status_codes[200]).json({
+          message: SUCCESS_MESSAGES.user.users_get,
+          data: Array.isArray(users) ? users : [users],
+        });
+      } else {
         const topUsers = await userManager.getUsers();
         return res.json({ data: topUsers });
       }
     } catch (error) {
-      // res.status(400).json({ error: error.message });
-       //   Errors which thrown by Error instance
-      if (error instanceof Error) {
-        return res.status(400).json({ error: error.message });
+      if (
+        error instanceof Error &&
+        error.message.startsWith(ERRORS_MESSAGES.user.users_not_found)
+      ) {
+        return res
+          .status(http_response_status_codes[404])
+          .json({ error: error.message });
       }
 
-      return res.status(500).json({ error: "Unexpected error" });
+      return res
+        .status(http_response_status_codes[500])
+        .json({ error: ERRORS_MESSAGES.unexpected_error });
     }
   };
 
-
   getUser = async (req, res) => {
-  try {
-    const { id } = req.query;
+    try {
+      const { id } = req.query;
 
-    const user = await userManager.getUser(parseInt(id));
-    if (!user) throw new Error("User not found");
+      const user = await userManager.getUser(parseInt(id));
+      if (!user) throw new Error(ERRORS_MESSAGES.user.user_not_found);
 
-    return res.status(200).json({ data: user });
-  } catch (error) {
-    // res.status(400).json({ error: error.message }); //   Errors which thrown by Error instance
-      if (error instanceof Error) {
-        return res.status(400).json({ error: error.message });
+      return res.status(http_response_status_codes[200]).json({ data: user });
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message.startsWith(ERRORS_MESSAGES.user.user_not_found)
+      ) {
+        return res
+          .status(http_response_status_codes[404])
+          .json({ error: error.message });
       }
 
-      return res.status(500).json({ error: "Unexpected error" });
-
-  }
-};
-
-
+      return res
+        .status(http_response_status_codes[500])
+        .json({ error: ERRORS_MESSAGES.unexpected_error });
+    }
+  };
 }
-
 
 const userController = new UserController();
 

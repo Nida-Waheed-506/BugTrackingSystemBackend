@@ -1,14 +1,12 @@
 const { User } = require("../models/user");
-const bcrypt = require("bcrypt");
 const { Op } = require("sequelize");
+const { static_keywords } = require("../utils/constants");
 
 // ++++++++++++++++++++++++++++++ imports end +++++++++++++++++++++++++++++++++
 
 class UserHandlers {
-  createUser = async (userData) => {
-    const { name, email, password, user_type, mobile_number } = userData;
-
-    const hashedPassword = await bcrypt.hash(password, 10); //10 salt round 2^10 times , strong password
+  createUser = async (userData, hashedPassword) => {
+    const { name, email, user_type, mobile_number } = userData;
 
     const user = await User.create({
       name: name,
@@ -21,33 +19,37 @@ class UserHandlers {
   };
 
   findUser = async (userData) => {
-    const { email, password } = userData;
+    const { email } = userData;
 
     const user = await User.findOne({
       where: { email: email },
     });
 
-    if (!user) throw new Error("Invalid Credentials");
-    const passwordHash = await bcrypt.compare(password, user.password);
-    if (!passwordHash) throw new Error("Invalid Credentials");
     return user;
   };
 
   getUser = async (id) => {
     return await User.findOne({
-      where: { id:id },
+      where: { id: id },
     });
   };
 
   getUsersByName = async (searchingName) => {
-  //  case insensitive and also the partial searching 
-    return await User.findOne({ where: {name: { [Op.iLike]: `%${searchingName}%` } , user_type: {[Op.or]: ["developer" , "QA"]} }});
+    //  case insensitive and also the partial searching
+    return await User.findOne({
+      where: {
+        name: { [Op.iLike]: `%${searchingName}%` },
+        user_type: { [Op.or]: [static_keywords.developer, constants.QA] },
+      },
+    });
   };
-   getUsers = async () => {
-    
-    return await User.findAll({where: {user_type: {[Op.or]:['developer' , 'QA']}} ,  limit:5  });
- 
-  
+  getUsers = async () => {
+    return await User.findAll({
+      where: {
+        user_type: { [Op.or]: [static_keywords.developer, constants.QA] },
+      },
+      limit: 5,
+    });
   };
 }
 

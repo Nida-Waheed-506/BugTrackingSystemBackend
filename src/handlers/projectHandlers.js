@@ -1,6 +1,6 @@
 const { Project } = require("../models/project");
 const { User } = require("../models/user");
-const {Bug} = require("../models/bug");
+const { Bug } = require("../models/bug");
 const { Op } = require("sequelize");
 // +++++++++++++++++++++++++++ imports end ++++++++++++++++++++++++++++++++++++++++
 
@@ -22,37 +22,31 @@ class ProjectHandlers {
     return project;
   };
 
-findProjects = async (limit, offset) => {
-  console.log(limit, offset);
-  const { count, rows } = await Project.findAndCountAll({
-    limit,
-    offset,
-    include:[
-      {model:Bug}
-    ]
-   
-  });
+  findProjects = async (limit, offset) => {
+    const { count, rows } = await Project.findAndCountAll({
+      limit,
+      offset,
+      include: [{ model: Bug }],
+    });
 
-  const projects = rows.map((project) => {
-    const projectJSON = project.toJSON();
-    if (projectJSON.image) {
-      projectJSON.image = projectJSON.image.toString("base64");
-    }
-    return projectJSON;
-  });
-  
-  return {projects , count} ;
-};
+    const projects = rows.map((project) => {
+      const projectJSON = project.toJSON();
+      if (projectJSON.image) {
+        projectJSON.image = projectJSON.image.toString("base64");
+      }
+      return projectJSON;
+    });
 
+    return { projects, count };
+  };
 
   isProjectManager = async (project_id, manager_id) => {
     const project = await Project.findOne({
       where: { id: project_id, manager_id: manager_id },
     });
 
-    if(!project) throw new Error("You are not manager of that project");
+    if (!project) throw new Error("You are not manager of that project");
     return project;
-    
   };
 
   updateProject = async (projectId, manager_id, projectData) => {
@@ -83,11 +77,9 @@ findProjects = async (limit, offset) => {
   };
 
   getProject = async (project_id) => {
-    console.log(project_id, typeof project_id);
     return await Project.findOne({ where: { id: project_id } });
   };
   projectAssign = async (manager_id, project_id, email) => {
-    console.log(typeof project_id);
     // find project exists or not
 
     const project = await Project.findOne({ where: { id: project_id } });
@@ -131,11 +123,12 @@ findProjects = async (limit, offset) => {
   //  developer search by name
 
   findUsersDevs = async (project_id, searchingName) => {
-    console.log(searchingName);
-    // name: { [Op.iLike]: `%${searchingName}%`
     const project = await Project.findOne({ where: { id: project_id } });
     const devs = await project.getUsers({
-      where: {  name: { [Op.iLike]: `%${searchingName}%` } , user_type: "developer" },
+      where: {
+        name: { [Op.iLike]: `%${searchingName}%` },
+        user_type: "developer",
+      },
       limit: 2,
     });
 

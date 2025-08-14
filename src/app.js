@@ -13,10 +13,10 @@ const { bugRouter } = require("./routes/bug");
 // +++++++++++++++++++ imports end ++++++++++++++++++++++++++++++++++++++
 app.use(
   cors({
-    origin: "http://localhost:4200",
+    origin: process.env.LOCAL_HOST,
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], // Allow GET method explicitly
-    allowedHeaders: ["Content-Type", "Authorization"], // Ensure necessary headers are allowed
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 

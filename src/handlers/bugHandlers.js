@@ -57,8 +57,6 @@ class BugHandlers {
 
     // bug exists or not
 
-    console.log(screenshot);
-
     const bugExists = await Bug.findOne({ where: { id: bug_id } });
     if (!bugExists) throw new Error("Bug not exists");
     //project exists or  not
@@ -103,7 +101,6 @@ class BugHandlers {
   };
 
   deleteBug = async (project_id, QA_id, bug_id) => {
-    console.log("...............", project_id, QA_id, typeof bug_id, ".......");
     //project exists or  not
 
     const project = await Project.findOne({
@@ -129,7 +126,7 @@ class BugHandlers {
 
     // DB query to delete the bug
     const bug = await Bug.findOne({ where: { id: bug_id } });
-    console.log(bug);
+
     if (bug) {
       return await bug.destroy();
     } else {
@@ -161,7 +158,6 @@ class BugHandlers {
     const obj = await Bug.findOne({ where: { id: parseInt(id) } });
     if (!obj) throw new Error("This bug or feature not exist");
 
-    console.log(project_id, user_id);
     const isValidUser = await Bug.findOne({
       where: {
         project_id: project_id,
@@ -173,7 +169,6 @@ class BugHandlers {
       },
     });
 
-    console.log("1");
     if (!isValidUser)
       throw new Error("You are not assigned to the bug of that project");
 
@@ -181,7 +176,6 @@ class BugHandlers {
   };
 
   isQABelongToProject = async (project_id, QA_id) => {
-    console.log(project_id, QA_id , "............");
     const isValidQAToProject = await Project.findOne({
       where: { id: parseInt(project_id) },
       include: {
@@ -196,7 +190,7 @@ class BugHandlers {
         "You (with profession QA ) are not assigned to that project"
       );
 
-      return isValidQAToProject;
+    return isValidQAToProject;
   };
   isQABelongToBug = async (project_id, bug_id, QA_id) => {
     const bug = await Bug.findOne({

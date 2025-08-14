@@ -30,7 +30,6 @@ class ProjectController {
   };
 
   findProjects = async (req, res) => {
-    console.log("heeloo");
     const page = req.query.page || 1;
     const limit = req.query.limit || 10;
     const offset = (page - 1) * limit;
@@ -140,7 +139,7 @@ class ProjectController {
           parseInt(project_id),
           searchingName
         );
-        console.log(assignedUsers);
+
         if (assignedUsers)
           res.status(200).json({
             message: "Developers Detail",
@@ -159,9 +158,6 @@ class ProjectController {
           });
       }
     } catch (error) {
-      // console.log(error);
-      // res.status(404).json({ error: error.message });
-      //   Errors which thrown by Error instance
       if (error instanceof Error) {
         return res.status(400).json({ error: error.message });
       }
@@ -172,7 +168,6 @@ class ProjectController {
 
   isProjectManager = async (req, res, next) => {
     try {
-      
       const { project_id } = req.params;
       const { id: manager_id } = req.user;
       const project = await projectManager.isProjectManager(
