@@ -34,6 +34,18 @@ class UserHandlers {
     });
   };
 
+  editUser = async (id, userData) => {
+    const user = await User.update(userData, {
+      where: { id: id },
+    });
+    return user;
+  };
+
+  deleteUser = async (id) => {
+    const user = await User.destroy({ where: { id: id } });
+    return user;
+  };
+
   getUsersByName = async (searchingName) => {
     //  case insensitive and also the partial searching
     return await User.findOne({
@@ -43,12 +55,12 @@ class UserHandlers {
       },
     });
   };
-  getUsers = async () => {
+  getUsers = async (limit) => {
     return await User.findAll({
       where: {
         user_type: { [Op.or]: [user_types.developer, user_types.QA] },
       },
-      limit: 5,
+      limit: limit,
     });
   };
 }

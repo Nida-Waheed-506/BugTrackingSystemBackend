@@ -3,35 +3,13 @@ const { statusValidator } = require("../utils/validation");
 const { Op } = require("sequelize");
 const { Project } = require("../models/project");
 const { User } = require("../models/user");
+const { user_types } = require("../utils/constants");
 // +++++++++++++++++++++++++ imports end +++++++++++++++++++++++++++++++++
 
 class BugHandlers {
-  createBug = async (project_id, QA_id, screenshot, bugDetails) => {
+  createBug = async (project, project_id, QA_id, screenshot, bugDetails) => {
     const { title, description, deadline, type, status, developer_id } =
       bugDetails;
-
-    //project exists or  not
-
-    const project = await Project.findOne({
-      where: { id: parseInt(project_id) },
-    });
-    if (!project) throw new Error("Project not exists");
-
-    //QA is assigned to that project or not by the manager
-
-    const isValidQAToProject = await Project.findOne({
-      where: { id: parseInt(project_id) },
-      include: {
-        model: User,
-        where: { id: QA_id, user_type: "QA" },
-        through: { attributes: [] },
-      },
-    });
-
-    if (!isValidQAToProject)
-      throw new Error(
-        "You (with profession QA ) are not assigned to that project"
-      );
 
     //Create the bug
 
@@ -51,38 +29,18 @@ class BugHandlers {
     return bug;
   };
 
-  editBug = async (bug_id, project_id, QA_id, screenshot, bugDetails) => {
+  editBug = async (
+    bugExists,
+    project,
+    project_id,
+    QA_id,
+    screenshot,
+    bugDetails
+  ) => {
     const { title, description, deadline, type, status, developer_id } =
       bugDetails;
 
-    // bug exists or not
-
-    const bugExists = await Bug.findOne({ where: { id: bug_id } });
-    if (!bugExists) throw new Error("Bug not exists");
-    //project exists or  not
-
-    const project = await Project.findOne({
-      where: { id: parseInt(project_id) },
-    });
-    if (!project) throw new Error("Project not exists");
-
-    //QA is assigned to that project or not by the manager
-
-    const isValidQAToProject = await Project.findOne({
-      where: { id: parseInt(project_id) },
-      include: {
-        model: User,
-        where: { id: QA_id, user_type: "QA" },
-        through: { attributes: [] },
-      },
-    });
-
-    if (!isValidQAToProject)
-      throw new Error(
-        "You (with profession QA ) are not assigned to that project"
-      );
-
-    //Create the bug
+    //Update the bug
 
     const bug = await bugExists.update({
       title: title,
@@ -100,38 +58,11 @@ class BugHandlers {
     return bug;
   };
 
-  deleteBug = async (project_id, QA_id, bug_id) => {
-    //project exists or  not
-
-    const project = await Project.findOne({
-      where: { id: parseInt(project_id) },
-    });
-    if (!project) throw new Error("Project not exists");
-
-    //QA is assigned to that project or not by the manager
-
-    const isValidQAToProject = await Project.findOne({
-      where: { id: parseInt(project_id) },
-      include: {
-        model: User,
-        where: { id: QA_id, user_type: "QA" },
-        through: { attributes: [] },
-      },
-    });
-
-    if (!isValidQAToProject)
-      throw new Error(
-        "You (with profession QA ) are not assigned to that project"
-      );
-
+  deleteBug = async (bug_id) => {
     // DB query to delete the bug
     const bug = await Bug.findOne({ where: { id: bug_id } });
 
-    if (bug) {
-      return await bug.destroy();
-    } else {
-      throw new Error("Bug not exists");
-    }
+    return bug;
   };
 
   findBugs = async (project_id, limit, offset) => {
@@ -154,24 +85,7 @@ class BugHandlers {
     });
   };
 
-  changeBugStatus = async (project_id, id, status, user_id) => {
-    const obj = await Bug.findOne({ where: { id: parseInt(id) } });
-    if (!obj) throw new Error("This bug or feature not exist");
-
-    const isValidUser = await Bug.findOne({
-      where: {
-        project_id: project_id,
-        id: id,
-        [Op.or]: [
-          { developer_id: { [Op.contains]: [user_id] } },
-          { QA_id: user_id },
-        ],
-      },
-    });
-
-    if (!isValidUser)
-      throw new Error("You are not assigned to the bug of that project");
-
+  changeBugStatus = async (obj, status) => {
     return await obj.update({ status: status });
   };
 
@@ -180,15 +94,10 @@ class BugHandlers {
       where: { id: parseInt(project_id) },
       include: {
         model: User,
-        where: { id: QA_id, user_type: "QA" },
+        where: { id: QA_id, user_type: user_types.QA },
         through: { attributes: [] },
       },
     });
-
-    if (!isValidQAToProject)
-      throw new Error(
-        "You (with profession QA ) are not assigned to that project"
-      );
 
     return isValidQAToProject;
   };
@@ -196,7 +105,7 @@ class BugHandlers {
     const bug = await Bug.findOne({
       where: { project_id: project_id, id: bug_id, QA_id: QA_id },
     });
-    if (!bug) throw new Error("You are not QA of that task");
+
     return bug;
   };
 }

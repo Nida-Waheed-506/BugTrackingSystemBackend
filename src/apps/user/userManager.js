@@ -1,5 +1,8 @@
 const { userHandlers } = require("../../handlers/userHandlers");
-const { validateUserData } = require("../../utils/validation");
+const {
+  validateUserData,
+  validatePassword,
+} = require("../../utils/validation");
 const { generateToken } = require("../../utils/generateToken");
 const bcrypt = require("bcrypt");
 const { ERRORS_MESSAGES } = require("../../utils/response_msg");
@@ -12,6 +15,7 @@ class UserManager {
     //validate the user
 
     validateUserData(userData);
+    validatePassword(password);
 
     // hashed Password
 
@@ -40,18 +44,33 @@ class UserManager {
     return { user, token };
   };
 
+  // get user by id
+
+  getUser = async (id) => {
+    return await userHandlers.getUser(id);
+  };
+
+  editUser = async (id, userData) => {
+    const { password } = userData;
+    if (password) throw new Error(ERRORS_MESSAGES.user.password_not_editable);
+
+    //  add user to DB
+    const user = await userHandlers.editUser(id, userData);
+    return user;
+  };
+
+  deleteUser = async (id) => {
+    //  delete user from DB
+    return await userHandlers.deleteUser(id);
+  };
+
   // get user by name
   getUsersByName = async (searchingName) => {
     return await userHandlers.getUsersByName(searchingName);
   };
   //get top 5 users
-  getUsers = async () => {
-    return await userHandlers.getUsers();
-  };
-  // get user by id
-
-  getUser = async (id) => {
-    return await userHandlers.getUser(id);
+  getUsers = async (limit) => {
+    return await userHandlers.getUsers(limit);
   };
 }
 

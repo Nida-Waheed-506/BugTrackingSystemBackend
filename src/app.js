@@ -9,6 +9,7 @@ const cors = require("cors");
 const { userRouter } = require("./routes/user");
 const { projectRouter } = require("./routes/project");
 const { bugRouter } = require("./routes/bug");
+const { authRouter } = require("./routes/auth");
 
 // +++++++++++++++++++ imports end ++++++++++++++++++++++++++++++++++++++
 app.use(
@@ -24,6 +25,7 @@ app.use(express.json());
 
 app.use(cookieParser());
 app.use("/", userRouter);
+app.use("/", authRouter);
 app.use("/", projectRouter);
 app.use("/", bugRouter);
 

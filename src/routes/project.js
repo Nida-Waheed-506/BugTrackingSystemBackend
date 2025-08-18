@@ -14,36 +14,43 @@ const upload = multer({ storage: storage });
 
 // Api's call
 
+projectRouter.use(userAuth);
+
 //create the project
 projectRouter.post(
   "/project",
-  userAuth,
+
   isManager,
   upload.single("image"),
   projectController.createProject
 );
+
 // get the project
-projectRouter.get("/projects", userAuth, projectController.findProjects);
+projectRouter.get("/project/:project_id", projectController.findProject);
+
 // update the project
 projectRouter.patch(
-  "/projects/:project_id",
-  userAuth,
+  "/project/:project_id",
+
   isManager,
   projectController.updateProject
 );
 // delete the project
 projectRouter.delete(
-  "/projects/:project_id",
-  userAuth,
+  "/project/:project_id",
+
   isManager,
   projectController.deleteProject
 );
 
+// get the projects
+projectRouter.get("/project", projectController.findProjects);
+
 // assign the project
 
 projectRouter.post(
-  "/projects/:project_id/assign",
-  userAuth,
+  "/project/:project_id/assign",
+
   isManager,
   projectController.assignProject
 );
@@ -51,17 +58,19 @@ projectRouter.post(
 // get the  developers
 
 projectRouter.get(
-  "/projects/:project_id/users/developers",
-  userAuth,
+  "/project/:project_id/users/developers",
+
   isQA,
   projectController.findUsersDevs
 );
 
 // is Manager belong to specific project
 
-projectRouter.get("/projects/:project_id", userAuth , isManager ,  projectController.isProjectManager)
+projectRouter.get(
+  "/project/:project_id/IsManager",
 
-
-
+  isManager,
+  projectController.isProjectManager
+);
 
 module.exports = { projectRouter };

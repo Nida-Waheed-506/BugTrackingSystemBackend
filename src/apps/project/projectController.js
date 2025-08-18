@@ -4,6 +4,9 @@ const {
   ERRORS_NAMES,
   SUCCESS_MESSAGES,
 } = require("../../utils/response_msg");
+const {
+  http_response_status_codes,
+} = require("../../utils/http_response_status_codes");
 // +++++++++++++++++++ imports end +++++++++++++++++++++++++++++++++++++++++
 
 class ProjectController {
@@ -16,23 +19,20 @@ class ProjectController {
       );
 
       if (project)
-        res
-          .status(http_response_status_codes.created)
-          .json({ message: "Project added successfully", data: project });
+        res.status(http_response_status_codes.created).json({
+          message: SUCCESS_MESSAGES.project.project_create,
+          data: project,
+        });
     } catch (error) {
-      if (
-        error.name === ERRORS_NAMES.SequelizeUniqueConstraintError
-      ) {
-        return res.status(409).json({
-          error: "Project with same name already exists.",
+      if (error.name === ERRORS_NAMES.SequelizeUniqueConstraintError) {
+        return res.status(http_response_status_codes.conflict).json({
+          error: ERRORS_MESSAGES.project.project_already_exists,
         });
       }
 
-      if (error instanceof Error) {
-        return res.status(400).json({ error: error.message });
-      }
-
-      return res.status(500).json({ error: "Unexpected error" });
+      return res
+        .status(http_response_status_codes.internal_server_error)
+        .json({ error: ERRORS_MESSAGES.unexpected_error });
     }
   };
 
@@ -48,18 +48,44 @@ class ProjectController {
         offset
       );
       if (projects) {
-        res.status(200).json({
-          message: "Projects Detail",
+        res.status(http_response_status_codes.ok).json({
+          message: SUCCESS_MESSAGES.project.projects_get,
           data: [count, projects, req.user],
         });
-      } else res.status(404).json({ error: "Projects No Found" });
+      } else
+        res
+          .status(http_response_status_codes.not_found)
+          .json({ error: ERRORS_MESSAGES.project.projects_not_found });
     } catch (error) {
-      //   Errors which thrown by Error instance
-      if (error instanceof Error) {
-        return res.status(400).json({ error: error.message });
+      return res
+        .status(http_response_status_codes.internal_server_error)
+        .json({ error: ERRORS_MESSAGES.unexpected_error });
+    }
+  };
+
+  findProject = async (req, res) => {
+    try {
+      const { project_id } = req.params;
+      // get the project
+      const project = await projectManager.findProject(project_id);
+      if (project)
+        res
+          .status(http_response_status_codes.ok)
+          .json({ error: SUCCESS_MESSAGES.project.project_get, data: project });
+    } catch (error) {
+   
+      if (
+        error instanceof Error &&
+        error.message.startsWith(ERRORS_MESSAGES.project.project_not_found)
+      ) {
+        return res
+          .status(http_response_status_codes.not_found)
+          .json({ error: error.message });
       }
 
-      return res.status(500).json({ error: "Unexpected error" });
+      return res
+        .status(http_response_status_codes.internal_server_error)
+        .json({ error: ERRORS_MESSAGES.unexpected_error });
     }
   };
 
@@ -69,22 +95,35 @@ class ProjectController {
       const { id: manager_id } = req.user;
       const project = await projectManager.updateProject(
         projectId,
-        manager_id.toString(),
+        manager_id,
         req.body
       );
 
       if (project)
-        res
-          .status(200)
-          .json({ message: "Project updated successfully", data: project });
+        res.status(http_response_status_codes.ok).json({
+          message: SUCCESS_MESSAGES.project.project_update,
+          data: project,
+        });
     } catch (error) {
-      // res.status(404).json({ error: error.message });
-      //   Errors which thrown by Error instance
-      if (error instanceof Error) {
-        return res.status(400).json({ error: error.message });
+      if (
+        error instanceof Error &&
+        error.message.startsWith(ERRORS_MESSAGES.project.project_not_found)
+      ) {
+        return res
+          .status(http_response_status_codes.not_found)
+          .json({ error: error.message });
+      } else if (
+        error instanceof Error &&
+        error.message.startsWith(ERRORS_MESSAGES.project.not_project_manager)
+      ) {
+        return res
+          .status(http_response_status_codes.bad_request)
+          .json({ error: error.message });
       }
 
-      return res.status(500).json({ error: "Unexpected error" });
+      return res
+        .status(http_response_status_codes.internal_server_error)
+        .json({ error: ERRORS_MESSAGES.unexpected_error });
     }
   };
 
@@ -93,20 +132,31 @@ class ProjectController {
       const { project_id: projectId } = req.params;
 
       const { id: manager_id } = req.user;
-      const project = await projectManager.deleteProject(
-        projectId,
-        manager_id.toString()
-      );
+      const project = await projectManager.deleteProject(projectId, manager_id);
       if (project)
-        res.status(200).json({ message: "Project deleted successfully" });
+        res
+          .status(http_response_status_codes.ok)
+          .json({ message: SUCCESS_MESSAGES.project.project_delete });
     } catch (error) {
-      // res.status(404).json({ error: error.message });
-      //   Errors which thrown by Error instance
-      if (error instanceof Error) {
-        return res.status(400).json({ error: error.message });
+      if (
+        error instanceof Error &&
+        error.message.startsWith(ERRORS_MESSAGES.project.project_not_found)
+      ) {
+        return res
+          .status(http_response_status_codes.not_found)
+          .json({ error: error.message });
+      } else if (
+        error instanceof Error &&
+        error.message.startsWith(ERRORS_MESSAGES.project.not_project_manager)
+      ) {
+        return res
+          .status(http_response_status_codes.bad_request)
+          .json({ error: error.message });
       }
 
-      return res.status(500).json({ error: "Unexpected error" });
+      return res
+        .status(http_response_status_codes.internal_server_error)
+        .json({ error: ERRORS_MESSAGES.unexpected_error });
     }
   };
 
@@ -122,25 +172,62 @@ class ProjectController {
         email
       );
       if (projectAssigned)
-        res.json({
-          message: "User assigned to  project  successfully",
+        res.status(http_response_status_codes.ok).json({
+          message: SUCCESS_MESSAGES.project.user_assign_to_project,
           data: projectAssigned,
         });
     } catch (error) {
-      // res.status(400).json({ error: error.message }); //   Errors which thrown by Error instance
-      if (error instanceof Error) {
-        return res.status(400).json({ error: error.message });
+      if (
+        error instanceof Error &&
+        error.message.startsWith(ERRORS_MESSAGES.project.project_not_found)
+      ) {
+        return res
+          .status(http_response_status_codes.not_found)
+          .json({ error: error.message });
+      } else if (
+        error instanceof Error &&
+        error.message.startsWith(ERRORS_MESSAGES.project.not_project_manager)
+      ) {
+        return res
+          .status(http_response_status_codes.bad_request)
+          .json({ error: error.message });
+      } else if (
+        error instanceof Error &&
+        error.message.startsWith(ERRORS_MESSAGES.user.user_not_found)
+      ) {
+        return res
+          .status(http_response_status_codes.not_found)
+          .json({ error: error.message });
+      } else if (
+        error instanceof Error &&
+        error.message.startsWith(
+          ERRORS_MESSAGES.project.project_assign_to_which_users
+        )
+      ) {
+        return res
+          .status(http_response_status_codes.bad_request)
+          .json({ error: error.message });
+      } else if (
+        error instanceof Error &&
+        error.message.startsWith(ERRORS_MESSAGES.project.user_already_assigned)
+      ) {
+        return res
+          .status(http_response_status_codes.conflict)
+          .json({ error: error.message });
       }
 
-      return res.status(500).json({ error: "Unexpected error" });
+      return res
+        .status(http_response_status_codes.internal_server_error)
+        .json({ error: ERRORS_MESSAGES.unexpected_error });
     }
   };
 
   findUsersDevs = async (req, res, next) => {
-    const { search: searchingName } = req.query;
-    const { project_id } = req.params;
-
     try {
+      const { search: searchingName } = req.query;
+      const { project_id } = req.params;
+      const limit = req.query.limit || 5;
+
       if (searchingName) {
         const assignedUsers = await projectManager.findUsersDevs(
           parseInt(project_id),
@@ -148,47 +235,82 @@ class ProjectController {
         );
 
         if (assignedUsers)
-          res.status(200).json({
-            message: "Developers Detail",
+          res.status(http_response_status_codes.ok).json({
+            message: SUCCESS_MESSAGES.project.project_developer_detail,
             data: Array.isArray(assignedUsers)
               ? assignedUsers
               : [assignedUsers],
           });
       } else {
         const assignedTopUsers = await projectManager.findUsersDevsTop(
-          parseInt(project_id)
+          parseInt(project_id),
+          limit
         );
         if (assignedTopUsers)
-          res.status(200).json({
-            message: "Developers Detail",
+          res.status(http_response_status_codes.ok).json({
+            message: SUCCESS_MESSAGES.project.project_developers_detail,
             data: assignedTopUsers,
           });
       }
     } catch (error) {
-      if (error instanceof Error) {
-        return res.status(400).json({ error: error.message });
+      if (
+        error instanceof Error &&
+        error.message.startsWith(ERRORS_MESSAGES.project.project_not_found)
+      ) {
+        return res
+          .status(http_response_status_codes.not_found)
+          .json({ error: error.message });
+      } else if (
+        error instanceof Error &&
+        error.message.startsWith(
+          ERRORS_MESSAGES.project.project_has_no_developer
+        )
+      ) {
+        return res
+          .status(http_response_status_codes.not_found)
+          .json({ error: error.message });
       }
 
-      return res.status(500).json({ error: "Unexpected error" });
+      return res
+        .status(http_response_status_codes.internal_server_error)
+        .json({ error: ERRORS_MESSAGES.unexpected_error });
     }
   };
 
   isProjectManager = async (req, res, next) => {
     try {
       const { project_id } = req.params;
+
       const { id: manager_id } = req.user;
       const project = await projectManager.isProjectManager(
         parseInt(project_id),
         parseInt(manager_id)
       );
       if (project)
-        res.status(200).json({ message: "You are  manager of that project" });
+        res
+          .status(http_response_status_codes.ok)
+          .json({ message: SUCCESS_MESSAGES.project.project_manager });
     } catch (error) {
-      if (error instanceof Error) {
-        return res.status(400).json({ error: error.message });
+     
+      if (
+        error instanceof Error &&
+        error.message.startsWith(ERRORS_MESSAGES.project.project_not_found)
+      ) {
+        return res
+          .status(http_response_status_codes.not_found)
+          .json({ error: error.message });
+      } else if (
+        error instanceof Error &&
+        error.message.startsWith(ERRORS_MESSAGES.project.not_project_manager)
+      ) {
+        return res
+          .status(http_response_status_codes.bad_request)
+          .json({ error: error.message });
       }
 
-      return res.status(500).json({ error: "Unexpected error" });
+      return res
+        .status(http_response_status_codes.internal_server_error)
+        .json({ error: ERRORS_MESSAGES.unexpected_error });
     }
   };
 }
