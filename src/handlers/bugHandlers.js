@@ -1,5 +1,5 @@
 const { Bug } = require("../models/bug");
-const { statusValidator } = require("../utils/typeValidation");
+const { statusValidator } = require("../utils/validation");
 const { Op } = require("sequelize");
 const { Project } = require("../models/project");
 const { User } = require("../models/user");

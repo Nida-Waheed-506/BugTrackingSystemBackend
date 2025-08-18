@@ -1,4 +1,9 @@
 const { projectManager } = require("./projectManager");
+const {
+  ERRORS_MESSAGES,
+  ERRORS_NAMES,
+  SUCCESS_MESSAGES,
+} = require("../../utils/response_msg");
 // +++++++++++++++++++ imports end +++++++++++++++++++++++++++++++++++++++++
 
 class ProjectController {
@@ -12,10 +17,12 @@ class ProjectController {
 
       if (project)
         res
-          .status(201)
+          .status(http_response_status_codes.created)
           .json({ message: "Project added successfully", data: project });
     } catch (error) {
-      if (error.name === "SequelizeUniqueConstraintError") {
+      if (
+        error.name === ERRORS_NAMES.SequelizeUniqueConstraintError
+      ) {
         return res.status(409).json({
           error: "Project with same name already exists.",
         });

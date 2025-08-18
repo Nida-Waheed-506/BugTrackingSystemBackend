@@ -1,4 +1,4 @@
-const { typeValidator } = require("../../utils/typeValidation");
+const { typeValidator } = require("../../utils/validation");
 const { bugHandlers } = require("../../handlers/bugHandlers");
 const { services } = require("../../services/services");
 const { userHandlers } = require("../../handlers/userHandlers");
@@ -70,10 +70,10 @@ class BugManager {
   };
 
   isQABelongToProject = async (project_id, QA_id) => {
-   return bugHandlers.isQABelongToProject(project_id , QA_id);
+    return bugHandlers.isQABelongToProject(project_id, QA_id);
   };
-  isQABelongToBug  = async (project_id, bug_id , QA_id) => {
-   return bugHandlers.isQABelongToBug(project_id , bug_id ,  QA_id);
+  isQABelongToBug = async (project_id, bug_id, QA_id) => {
+    return bugHandlers.isQABelongToBug(project_id, bug_id, QA_id);
   };
 }
 

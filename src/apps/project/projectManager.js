@@ -6,11 +6,14 @@ const { services } = require("../../services/services");
 
 class ProjectManager {
   createProject = async (projectData, image, loggedInUserData) => {
-    return await projectHandlers.createProject(
+    const project = projectHandlers.createProject(
       projectData,
       image,
       loggedInUserData
     );
+
+    await loggedInUserData.addProject(project);
+    return project;
   };
 
   findProjects = async (limit, offset) => {

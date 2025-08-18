@@ -1,8 +1,8 @@
 const { userHandlers } = require("../../handlers/userHandlers");
-const { validateUserData } = require("../../utils/userValidation");
+const { validateUserData } = require("../../utils/validation");
 const { generateToken } = require("../../utils/generateToken");
 const bcrypt = require("bcrypt");
-const { ERRORS_MESSAGES } = require("../../utils/response");
+const { ERRORS_MESSAGES } = require("../../utils/response_msg");
 // +++++++++++++++++++++++++ imports end +++++++++++++++++++++++++++++++++++++++++++
 
 class UserManager {

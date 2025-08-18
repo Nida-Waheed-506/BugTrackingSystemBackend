@@ -4,7 +4,7 @@ const {
   ERRORS_MESSAGES,
   ERRORS_NAMES,
   SUCCESS_MESSAGES,
-} = require("../../utils/response");
+} = require("../../utils/response_msg");
 
 const {
   http_response_status_codes,
@@ -20,21 +20,21 @@ class UserController {
         expires: new Date(Date.now() + 8 * 3600000),
       });
       res
-        .status(http_response_status_codes[201])
+        .status(http_response_status_codes.created)
         .json({ message: SUCCESS_MESSAGES.user.user_signup, data: user });
     } catch (error) {
       if (error.name === ERRORS_NAMES.SequelizeValidationError) {
-        return res.status(http_response_status_codes[400]).json({
+        return res.status(http_response_status_codes.bad_request).json({
           error: ERRORS_MESSAGES.user.invalid_email_format,
         });
       } else if (error.name === ERRORS_NAMES.SequelizeUniqueConstraintError) {
-        return res.status(http_response_status_codes[409]).json({
+        return res.status(http_response_status_codes.conflict).json({
           error: ERRORS_MESSAGES.user.user_confict,
         });
       }
 
       return res
-        .status(http_response_status_codes[500])
+        .status(http_response_status_codes.internal_server_error)
         .json({ error: ERRORS_MESSAGES.unexpected_error });
     }
   };
@@ -47,23 +47,21 @@ class UserController {
           expires: new Date(Date.now() + 8 * 3600000),
         });
         res
-          .status(http_response_status_codes[200])
+          .status(http_response_status_codes.ok)
           .json({ message: SUCCESS_MESSAGES.user.user_login, data: user });
       } else throw new Error(ERRORS_MESSAGES.user.unauthorized_user);
     } catch (error) {
-      console.log(error);
       if (
         error instanceof Error &&
         error.message.startsWith(ERRORS_MESSAGES.user.unauthorized_user)
       ) {
-        console.log("hello");
         return res
-          .status(http_response_status_codes[401])
+          .status(http_response_status_codes.unauthorized)
           .json({ error: error.message });
       }
 
       return res
-        .status(http_response_status_codes[500])
+        .status(http_response_status_codes.internal_server_error)
         .json({ error: ERRORS_MESSAGES.unexpected_error });
     }
   };
@@ -76,7 +74,7 @@ class UserController {
         const users = await userManager.getUsersByName(searchingName);
         if (!users) throw new Error(ERRORS_MESSAGES.user.users_not_found);
 
-        res.status(http_response_status_codes[200]).json({
+        res.status(http_response_status_codes.ok).json({
           message: SUCCESS_MESSAGES.user.users_get,
           data: Array.isArray(users) ? users : [users],
         });
@@ -90,12 +88,12 @@ class UserController {
         error.message.startsWith(ERRORS_MESSAGES.user.users_not_found)
       ) {
         return res
-          .status(http_response_status_codes[404])
+          .status(http_response_status_codes.not_found)
           .json({ error: error.message });
       }
 
       return res
-        .status(http_response_status_codes[500])
+        .status(http_response_status_codes.internal_server_error)
         .json({ error: ERRORS_MESSAGES.unexpected_error });
     }
   };
@@ -107,19 +105,19 @@ class UserController {
       const user = await userManager.getUser(parseInt(id));
       if (!user) throw new Error(ERRORS_MESSAGES.user.user_not_found);
 
-      return res.status(http_response_status_codes[200]).json({ data: user });
+      return res.status(http_response_status_codes.ok).json({ data: user });
     } catch (error) {
       if (
         error instanceof Error &&
         error.message.startsWith(ERRORS_MESSAGES.user.user_not_found)
       ) {
         return res
-          .status(http_response_status_codes[404])
+          .status(http_response_status_codes.not_found)
           .json({ error: error.message });
       }
 
       return res
-        .status(http_response_status_codes[500])
+        .status(http_response_status_codes.internal_server_error)
         .json({ error: ERRORS_MESSAGES.unexpected_error });
     }
   };

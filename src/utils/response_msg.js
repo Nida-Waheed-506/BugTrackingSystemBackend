@@ -5,7 +5,13 @@ const SUCCESS_MESSAGES = {
     users_get: "Users Detail",
   },
 
-  project: {},
+  project: {
+    project_create: "Project created successfully",
+    project_update: "Project updated successfully",
+    project_delete: "Project deleted successfully",
+    project_assign: "Project assigned successfully",
+    projects_get: "Projects Detail",
+  },
 
   bug: {},
 };

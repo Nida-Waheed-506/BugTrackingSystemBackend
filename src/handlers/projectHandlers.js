@@ -18,7 +18,6 @@ class ProjectHandlers {
       image: image,
     });
 
-    await loggedInUserData.addProject(project);
     return project;
   };
 

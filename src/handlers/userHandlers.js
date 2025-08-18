@@ -1,6 +1,6 @@
 const { User } = require("../models/user");
 const { Op } = require("sequelize");
-const { static_keywords } = require("../utils/constants");
+const { user_types } = require("../utils/constants");
 
 // ++++++++++++++++++++++++++++++ imports end +++++++++++++++++++++++++++++++++
 
@@ -39,14 +39,14 @@ class UserHandlers {
     return await User.findOne({
       where: {
         name: { [Op.iLike]: `%${searchingName}%` },
-        user_type: { [Op.or]: [static_keywords.developer, constants.QA] },
+        user_type: { [Op.or]: [user_types.developer, user_types.QA] },
       },
     });
   };
   getUsers = async () => {
     return await User.findAll({
       where: {
-        user_type: { [Op.or]: [static_keywords.developer, constants.QA] },
+        user_type: { [Op.or]: [user_types.developer, user_types.QA] },
       },
       limit: 5,
     });
