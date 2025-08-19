@@ -17,12 +17,12 @@ class Services {
       to: "nidawaheed506@gmail.com",
       subject:
         type === "project"
-          ? `${user.name} - Your Project Assignment`
-          : `${user.name} - Your Bug Assignment`,
+          ? `${user?.name} - Your Project Assignment`
+          : `${user?.name} - Your Bug Assignment`,
       text:
         type === "project"
-          ? `Hi ${user.name}, You are assigned to a project :  ${assignment.projectName}`
-          : `Hi ${user.name}, You are assigned to a bug : ${assignment.title}`,
+          ? `Hi ${user?.name}, You are assigned to a project :  ${assignment?.projectName}`
+          : `Hi ${user?.name}, You are assigned to a bug : ${assignment?.title}`,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {

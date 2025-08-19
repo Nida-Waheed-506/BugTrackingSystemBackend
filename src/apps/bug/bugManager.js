@@ -3,10 +3,11 @@ const { bugHandlers } = require("../../handlers/bugHandlers");
 const { services } = require("../../services/services");
 const { userHandlers } = require("../../handlers/userHandlers");
 const { Project } = require("../../models/project");
+const { User } = require("../../models/user");
 const { ERRORS_MESSAGES } = require("../../utils/response_msg");
 const { user_types, email_type } = require("../../utils/constants");
 const { Bug } = require("../../models/bug");
-
+const { Op } = require("sequelize");
 // +++++++++++++++++++++ imports end +++++++++++++++++++++++++++++++
 
 class BugManager {
@@ -96,7 +97,7 @@ class BugManager {
     const bug = await bugHandlers.editBug(
       bugExists,
       project,
-      bug_id,
+
       project_id,
       QA_id,
       screenshot,
@@ -151,6 +152,10 @@ class BugManager {
     return await bugHandlers.findBugs(project_id, limit, offset);
   };
 
+  findBug = async (bug_id) => {
+    return await bugHandlers.findBug(bug_id);
+  };
+
   changeBugStatus = async (project_id, id, type, status, user_id) => {
     typeValidator(type);
     // bug status validator
@@ -173,14 +178,15 @@ class BugManager {
       throw new Error(ERRORS_MESSAGES.project.QA_not_assign_to_project);
     return await bugHandlers.changeBugStatus(
       obj,
-      project_id,
-      id,
-      status,
-      user_id
+
+      status
     );
   };
 
   isQABelongToProject = async (project_id, QA_id) => {
+    const projectExists = await Project.findOne({ where: { id: project_id } });
+    if (!projectExists)
+      throw new Error(ERRORS_MESSAGES.project.project_not_found);
     const isValidQAToProject = await bugHandlers.isQABelongToProject(
       project_id,
       QA_id
@@ -191,8 +197,14 @@ class BugManager {
     return isValidQAToProject;
   };
   isQABelongToBug = async (project_id, bug_id, QA_id) => {
+    const projectExists = await Project.findOne({ where: { id: project_id } });
+    if (!projectExists)
+      throw new Error(ERRORS_MESSAGES.project.project_not_found);
+
+    const bugExists = await Bug.findOne({ where: { id: bug_id } });
+    if (!bugExists) throw new Error(ERRORS_MESSAGES.bug.task_not_found);
     const bug = await bugHandlers.isQABelongToBug(project_id, bug_id, QA_id);
-    if (!bug) throw new Error(ERRORS_MESSAGES.bug.task_not_found);
+    if (!bug) throw new Error(ERRORS_MESSAGES.bug.not_QA_of_task);
     return bug;
   };
 }

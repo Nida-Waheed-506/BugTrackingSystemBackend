@@ -24,6 +24,7 @@ class ProjectHandlers {
 
   findProjects = async (limit, offset) => {
     const { count, rows } = await Project.findAndCountAll({
+      distinct: true,
       limit,
       offset,
       include: [{ model: Bug }],

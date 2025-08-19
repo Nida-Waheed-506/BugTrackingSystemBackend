@@ -1,6 +1,4 @@
 const { Bug } = require("../models/bug");
-const { statusValidator } = require("../utils/validation");
-const { Op } = require("sequelize");
 const { Project } = require("../models/project");
 const { User } = require("../models/user");
 const { user_types } = require("../utils/constants");
@@ -32,6 +30,7 @@ class BugHandlers {
   editBug = async (
     bugExists,
     project,
+
     project_id,
     QA_id,
     screenshot,
@@ -68,6 +67,7 @@ class BugHandlers {
   findBugs = async (project_id, limit, offset) => {
     return await Bug.findAndCountAll({
       where: { project_id: project_id },
+      distinct: true,
       limit,
       offset,
       attributes: [
@@ -82,6 +82,12 @@ class BugHandlers {
         "QA_id",
         "developer_id",
       ],
+    });
+  };
+
+  findBug = async (bug_id) => {
+    return await Bug.findOne({
+      where: { id: bug_id },
     });
   };
 

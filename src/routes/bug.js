@@ -14,49 +14,39 @@ const upload = multer({ storage: storage });
 // Api's call
 
 bugRouter.use(userAuth);
-//bug created by the QA only
+
 bugRouter.post(
   "/bug",
-
   isQA,
   upload.single("screenshot"),
   bugController.createBug
 );
 
-// bug edited by the QA only
 bugRouter.patch(
-  "/bugs/:bug_id",
-
+  "/bug/:bug_id",
   isQA,
   upload.single("screenshot"),
   bugController.editBug
 );
-//get the bugs of the project with detail
-bugRouter.get("/bugs", bugController.findBugs);
-// delete the bug of the project
-bugRouter.delete("/bugs/:bug_id", isQA, bugController.deleteBug);
-//Developer & QA update the status
-bugRouter.patch(
-  "/bugs/:bug_id/status",
 
+bugRouter.get("/bug/:bug_id", bugController.findBug);
+
+bugRouter.delete("/bug/:bug_id", isQA, bugController.deleteBug);
+
+bugRouter.get("/bug", bugController.findBugs);
+
+bugRouter.patch(
+  "/bug/:bug_id/status",
   isQAorDev,
   bugController.changeBugStatus
 );
 
-// is QA belong to project
-
 bugRouter.get(
-  "/bugs/:project_id",
-
+  "/bug/project/:project_id/QA/belong",
   isQA,
   bugController.isQABelongToProject
 );
-// is QA belong to specific bug of specific project
-bugRouter.get(
-  "/bugs/:bug_id/:project_id",
 
-  isQA,
-  bugController.isQABelongToBug
-);
+bugRouter.get("/bug/:bug_id/QA/belong", isQA, bugController.isQABelongToBug);
 
 module.exports = { bugRouter };

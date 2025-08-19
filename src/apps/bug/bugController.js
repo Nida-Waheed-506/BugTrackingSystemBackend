@@ -7,6 +7,8 @@ const {
   ERRORS_NAMES,
   ERRORS_MESSAGES,
 } = require("../../utils/response_msg");
+const { SHOWN_ERRORS_Of_Bug } = require("../../utils/showError/bug");
+const { validateBugData } = require("../../utils/validation");
 // +++++++++++++++++++++ imports end ++++++++++++++++++++++++++++++
 
 class BugController {
@@ -15,6 +17,8 @@ class BugController {
       const { project_id } = req.body;
 
       const { id: QA_id } = req.user;
+
+      validateBugData(req.body);
 
       const bug = await bugManager.createBug(
         project_id,
@@ -27,32 +31,8 @@ class BugController {
           .status(http_response_status_codes.created)
           .json({ message: SUCCESS_MESSAGES.bug.task_create, data: bug });
     } catch (error) {
-      if (error.name === ERRORS_NAMES.SequelizeUniqueConstraintError) {
-        return res.status(http_response_status_codes.conflict).json({
-          error: ERRORS_MESSAGES.bug.task_already_exists,
-        });
-      } else if (
-        error instanceof Error &&
-        (ERRORS_MESSAGES.validation_errors.bugs_types_invalid ||
-          ERRORS_MESSAGES.project.QA_not_assign_to_project ||
-          ERRORS_MESSAGES.validation_errors.feature_status_invalid ||
-          ERRORS_MESSAGES.validation_errors.bug_status_invalid)
-      ) {
-        return res
-          .status(http_response_status_codes.bad_request)
-          .json({ error: error.message });
-      } else if (
-        error instanceof Error &&
-        ERRORS_MESSAGES.project.project_not_found
-      ) {
-        return res
-          .status(http_response_status_codes.not_found)
-          .json({ error: error.message });
-      }
-
-      return res
-        .status(http_response_status_codes.internal_server_error)
-        .json({ error: ERRORS_MESSAGES.unexpected_error });
+      SHOWN_ERRORS_Of_Bug.createBug_error(error, res);
+      SHOWN_ERRORS_Of_Bug.unexpected_error(res);
     }
   };
 
@@ -75,33 +55,8 @@ class BugController {
           .status(http_response_status_codes.ok)
           .json({ message: SUCCESS_MESSAGES.bug.task_update, data: bug });
     } catch (error) {
-      if (error.name === ERRORS_NAMES.SequelizeUniqueConstraintError) {
-        return res.status(http_response_status_codes.conflict).json({
-          error: ERRORS_MESSAGES.bug.task_already_exists,
-        });
-      } else if (
-        error instanceof Error &&
-        (ERRORS_MESSAGES.validation_errors.bugs_types_invalid ||
-          ERRORS_MESSAGES.project.QA_not_assign_to_project ||
-          ERRORS_MESSAGES.validation_errors.feature_status_invalid ||
-          ERRORS_MESSAGES.validation_errors.bug_status_invalid)
-      ) {
-        return res
-          .status(http_response_status_codes.bad_request)
-          .json({ error: error.message });
-      } else if (
-        error instanceof Error &&
-        (ERRORS_MESSAGES.project.project_not_found ||
-          ERRORS_MESSAGES.bug.task_not_found)
-      ) {
-        return res
-          .status(http_response_status_codes.not_found)
-          .json({ error: error.message });
-      }
-
-      return res
-        .status(http_response_status_codes.internal_server_error)
-        .json({ error: ERRORS_MESSAGES.unexpected_error });
+      SHOWN_ERRORS_Of_Bug.editBug_error(error, res);
+      SHOWN_ERRORS_Of_Bug.unexpected_error(res);
     }
   };
 
@@ -118,26 +73,8 @@ class BugController {
           .status(http_response_status_codes.ok)
           .json({ message: SUCCESS_MESSAGES.bug.task_delete });
     } catch (error) {
-      if (
-        error instanceof Error &&
-        ERRORS_MESSAGES.project.QA_not_assign_to_project
-      ) {
-        return res
-          .status(http_response_status_codes.bad_request)
-          .json({ error: error.message });
-      } else if (
-        error instanceof Error &&
-        (ERRORS_MESSAGES.project.project_not_found ||
-          ERRORS_MESSAGES.bug.task_not_found)
-      ) {
-        return res
-          .status(http_response_status_codes.not_found)
-          .json({ error: error.message });
-      }
-
-      return res
-        .status(http_response_status_codes.internal_server_error)
-        .json({ error: ERRORS_MESSAGES.unexpected_error });
+      SHOWN_ERRORS_Of_Bug.deleteBug_error(error, res);
+      SHOWN_ERRORS_Of_Bug.unexpected_error(res);
     }
   };
 
@@ -162,22 +99,32 @@ class BugController {
           .json({ message: SUCCESS_MESSAGES.bug.tasks_get, data: bugs });
       else throw new Error(ERRORS_MESSAGES.bug.tasks_not_found);
     } catch (error) {
-      if (error instanceof Error && ERRORS_MESSAGES.bug.tasks_not_found) {
-        return res
-          .status(http_response_status_codes.not_found)
-          .json({ error: error.message });
-      }
+      SHOWN_ERRORS_Of_Bug.findBugs_error(error, res);
+      SHOWN_ERRORS_Of_Bug.unexpected_error(res);
+    }
+  };
 
-      return res
-        .status(http_response_status_codes.internal_server_error)
-        .json({ error: ERRORS_MESSAGES.unexpected_error });
+  findBug = async (req, res, next) => {
+    try {
+      const { bug_id } = req.params;
+
+      const bug = await bugManager.findBug(parseInt(bug_id));
+
+      if (bug)
+        res
+          .status(http_response_status_codes.ok)
+          .json({ message: SUCCESS_MESSAGES.bug.task_get, data: bug });
+      else throw new Error(ERRORS_MESSAGES.bug.task_not_found);
+    } catch (error) {
+      SHOWN_ERRORS_Of_Bug.findBug_error(error, res);
+      SHOWN_ERRORS_Of_Bug.unexpected_error(res);
     }
   };
 
   changeBugStatus = async (req, res, next) => {
     try {
       const { bug_id: id } = req.params;
-      const { project_id, type, status } = req.body;
+      const { type, status, project_id } = req.body;
       const { id: user_id } = req.user;
 
       const bug = await bugManager.changeBugStatus(
@@ -195,25 +142,8 @@ class BugController {
         });
       else throw new Error(ERRORS_MESSAGES.bug.task_status_not_change);
     } catch (error) {
-      if (
-        error instanceof Error &&
-        (ERRORS_MESSAGES.validation_errors.bugs_types_invalid ||
-          ERRORS_MESSAGES.validation_errors.feature_status_invalid ||
-          ERRORS_MESSAGES.validation_errors.bug_status_invalid ||
-          ERRORS_MESSAGES.project.QA_not_assign_to_project)
-      ) {
-        return res
-          .status(http_response_status_codes.bad_request)
-          .json({ error: error.message });
-      } else if (error instanceof Error && ERRORS_MESSAGES.bug.task_not_found) {
-        return res
-          .status(http_response_status_codes.not_found)
-          .json({ error: error.message });
-      }
-
-      return res
-        .status(http_response_status_codes.internal_server_error)
-        .json({ error: ERRORS_MESSAGES.unexpected_error });
+      SHOWN_ERRORS_Of_Bug.changeBugStatus_error(error, res);
+      SHOWN_ERRORS_Of_Bug.unexpected_error(res);
     }
   };
 
@@ -229,28 +159,18 @@ class BugController {
 
       if (project)
         return res
-          .status(http_response_status_codes)
+          .status(http_response_status_codes.ok)
           .json({ message: SUCCESS_MESSAGES.project.project_valid_QA });
     } catch (error) {
-      if (
-        error instanceof Error &&
-        ERRORS_MESSAGES.project.QA_not_assign_to_project
-      ) {
-        return res
-          .status(http_response_status_codes.bad_request)
-          .json({ error: error.message });
-      }
-
-      return res
-        .status(http_response_status_codes.internal_server_error)
-        .json({ error: ERRORS_MESSAGES.unexpected_error });
+      SHOWN_ERRORS_Of_Bug.isQABelongToProject_error(error, res);
+      SHOWN_ERRORS_Of_Bug.unexpected_error(res);
     }
   };
 
   isQABelongToBug = async (req, res, next) => {
     try {
       const { id: QA_id } = req.user;
-      const { project_id } = req.params;
+      const { project_id } = req.query;
       const { bug_id } = req.params;
 
       const bug = await bugManager.isQABelongToBug(
@@ -261,18 +181,11 @@ class BugController {
 
       if (bug)
         return res
-          .status(http_response_status_codes)
+          .status(http_response_status_codes.ok)
           .json({ message: SUCCESS_MESSAGES.bug.task_valid_QA });
     } catch (error) {
-      if (error instanceof Error && ERRORS_MESSAGES.bug.task_not_found) {
-        return res
-          .status(http_response_status_codes.not_found)
-          .json({ error: error.message });
-      }
-
-      return res
-        .status(http_response_status_codes.internal_server_error)
-        .json({ error: ERRORS_MESSAGES.unexpected_error });
+      SHOWN_ERRORS_Of_Bug.isQABelongToBug_error(error, res);
+      SHOWN_ERRORS_Of_Bug.unexpected_error(res);
     }
   };
 }

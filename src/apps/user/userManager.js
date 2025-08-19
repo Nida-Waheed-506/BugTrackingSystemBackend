@@ -2,6 +2,7 @@ const { userHandlers } = require("../../handlers/userHandlers");
 const {
   validateUserData,
   validatePassword,
+  validate_user_type,
 } = require("../../utils/validation");
 const { generateToken } = require("../../utils/generateToken");
 const bcrypt = require("bcrypt");
@@ -15,6 +16,7 @@ class UserManager {
     //validate the user
 
     validateUserData(userData);
+    validate_user_type(userData.user_type);
     validatePassword(password);
 
     // hashed Password
@@ -51,7 +53,8 @@ class UserManager {
   };
 
   editUser = async (id, userData) => {
-    const { password } = userData;
+    const { password, user_type } = userData;
+    if (user_type) validate_user_type(userData.user_type);
     if (password) throw new Error(ERRORS_MESSAGES.user.password_not_editable);
 
     //  add user to DB

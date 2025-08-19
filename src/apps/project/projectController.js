@@ -7,11 +7,14 @@ const {
 const {
   http_response_status_codes,
 } = require("../../utils/http_response_status_codes");
+const { SHOWN_ERRORS_Of_Project } = require("../../utils/showError/project");
+const { validateProjectData } = require("../../utils/validation");
 // +++++++++++++++++++ imports end +++++++++++++++++++++++++++++++++++++++++
 
 class ProjectController {
   createProject = async (req, res, next) => {
     try {
+      validateProjectData(req.body, req?.file?.buffer);
       const project = await projectManager.createProject(
         req.body,
         req?.file?.buffer,
@@ -24,15 +27,8 @@ class ProjectController {
           data: project,
         });
     } catch (error) {
-      if (error.name === ERRORS_NAMES.SequelizeUniqueConstraintError) {
-        return res.status(http_response_status_codes.conflict).json({
-          error: ERRORS_MESSAGES.project.project_already_exists,
-        });
-      }
-
-      return res
-        .status(http_response_status_codes.internal_server_error)
-        .json({ error: ERRORS_MESSAGES.unexpected_error });
+      SHOWN_ERRORS_Of_Project.createProject_error(error, res);
+      SHOWN_ERRORS_Of_Project.unexpected_error();
     }
   };
 
@@ -52,14 +48,10 @@ class ProjectController {
           message: SUCCESS_MESSAGES.project.projects_get,
           data: [count, projects, req.user],
         });
-      } else
-        res
-          .status(http_response_status_codes.not_found)
-          .json({ error: ERRORS_MESSAGES.project.projects_not_found });
+      } else throw new Error(ERRORS_MESSAGES.project.projects_not_found);
     } catch (error) {
-      return res
-        .status(http_response_status_codes.internal_server_error)
-        .json({ error: ERRORS_MESSAGES.unexpected_error });
+      SHOWN_ERRORS_Of_Project.findProjects_error(error, res);
+      SHOWN_ERRORS_Of_Project.unexpected_error();
     }
   };
 
@@ -73,19 +65,8 @@ class ProjectController {
           .status(http_response_status_codes.ok)
           .json({ error: SUCCESS_MESSAGES.project.project_get, data: project });
     } catch (error) {
-   
-      if (
-        error instanceof Error &&
-        error.message.startsWith(ERRORS_MESSAGES.project.project_not_found)
-      ) {
-        return res
-          .status(http_response_status_codes.not_found)
-          .json({ error: error.message });
-      }
-
-      return res
-        .status(http_response_status_codes.internal_server_error)
-        .json({ error: ERRORS_MESSAGES.unexpected_error });
+      SHOWN_ERRORS_Of_Project.findProject_error.error(error, res);
+      SHOWN_ERRORS_Of_Project.unexpected_error();
     }
   };
 
@@ -105,25 +86,8 @@ class ProjectController {
           data: project,
         });
     } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message.startsWith(ERRORS_MESSAGES.project.project_not_found)
-      ) {
-        return res
-          .status(http_response_status_codes.not_found)
-          .json({ error: error.message });
-      } else if (
-        error instanceof Error &&
-        error.message.startsWith(ERRORS_MESSAGES.project.not_project_manager)
-      ) {
-        return res
-          .status(http_response_status_codes.bad_request)
-          .json({ error: error.message });
-      }
-
-      return res
-        .status(http_response_status_codes.internal_server_error)
-        .json({ error: ERRORS_MESSAGES.unexpected_error });
+      SHOWN_ERRORS_Of_Project.updateProject_error(error, res);
+      SHOWN_ERRORS_Of_Project.unexpected_error();
     }
   };
 
@@ -138,25 +102,8 @@ class ProjectController {
           .status(http_response_status_codes.ok)
           .json({ message: SUCCESS_MESSAGES.project.project_delete });
     } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message.startsWith(ERRORS_MESSAGES.project.project_not_found)
-      ) {
-        return res
-          .status(http_response_status_codes.not_found)
-          .json({ error: error.message });
-      } else if (
-        error instanceof Error &&
-        error.message.startsWith(ERRORS_MESSAGES.project.not_project_manager)
-      ) {
-        return res
-          .status(http_response_status_codes.bad_request)
-          .json({ error: error.message });
-      }
-
-      return res
-        .status(http_response_status_codes.internal_server_error)
-        .json({ error: ERRORS_MESSAGES.unexpected_error });
+      SHOWN_ERRORS_Of_Project.deleteProject_error(error, res);
+      SHOWN_ERRORS_Of_Project.unexpected_error();
     }
   };
 
@@ -177,48 +124,8 @@ class ProjectController {
           data: projectAssigned,
         });
     } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message.startsWith(ERRORS_MESSAGES.project.project_not_found)
-      ) {
-        return res
-          .status(http_response_status_codes.not_found)
-          .json({ error: error.message });
-      } else if (
-        error instanceof Error &&
-        error.message.startsWith(ERRORS_MESSAGES.project.not_project_manager)
-      ) {
-        return res
-          .status(http_response_status_codes.bad_request)
-          .json({ error: error.message });
-      } else if (
-        error instanceof Error &&
-        error.message.startsWith(ERRORS_MESSAGES.user.user_not_found)
-      ) {
-        return res
-          .status(http_response_status_codes.not_found)
-          .json({ error: error.message });
-      } else if (
-        error instanceof Error &&
-        error.message.startsWith(
-          ERRORS_MESSAGES.project.project_assign_to_which_users
-        )
-      ) {
-        return res
-          .status(http_response_status_codes.bad_request)
-          .json({ error: error.message });
-      } else if (
-        error instanceof Error &&
-        error.message.startsWith(ERRORS_MESSAGES.project.user_already_assigned)
-      ) {
-        return res
-          .status(http_response_status_codes.conflict)
-          .json({ error: error.message });
-      }
-
-      return res
-        .status(http_response_status_codes.internal_server_error)
-        .json({ error: ERRORS_MESSAGES.unexpected_error });
+      SHOWN_ERRORS_Of_Project.assignProject_error(error, res);
+      SHOWN_ERRORS_Of_Project.unexpected_error();
     }
   };
 
@@ -253,27 +160,8 @@ class ProjectController {
           });
       }
     } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message.startsWith(ERRORS_MESSAGES.project.project_not_found)
-      ) {
-        return res
-          .status(http_response_status_codes.not_found)
-          .json({ error: error.message });
-      } else if (
-        error instanceof Error &&
-        error.message.startsWith(
-          ERRORS_MESSAGES.project.project_has_no_developer
-        )
-      ) {
-        return res
-          .status(http_response_status_codes.not_found)
-          .json({ error: error.message });
-      }
-
-      return res
-        .status(http_response_status_codes.internal_server_error)
-        .json({ error: ERRORS_MESSAGES.unexpected_error });
+      SHOWN_ERRORS_Of_Project.findUsersDevs_error(error, res);
+      SHOWN_ERRORS_Of_Project.unexpected_error();
     }
   };
 
@@ -291,26 +179,8 @@ class ProjectController {
           .status(http_response_status_codes.ok)
           .json({ message: SUCCESS_MESSAGES.project.project_manager });
     } catch (error) {
-     
-      if (
-        error instanceof Error &&
-        error.message.startsWith(ERRORS_MESSAGES.project.project_not_found)
-      ) {
-        return res
-          .status(http_response_status_codes.not_found)
-          .json({ error: error.message });
-      } else if (
-        error instanceof Error &&
-        error.message.startsWith(ERRORS_MESSAGES.project.not_project_manager)
-      ) {
-        return res
-          .status(http_response_status_codes.bad_request)
-          .json({ error: error.message });
-      }
-
-      return res
-        .status(http_response_status_codes.internal_server_error)
-        .json({ error: ERRORS_MESSAGES.unexpected_error });
+      SHOWN_ERRORS_Of_Project.isProjectManager_error(error, res);
+      SHOWN_ERRORS_Of_Project.unexpected_error();
     }
   };
 }
