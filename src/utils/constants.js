@@ -1,16 +1,16 @@
-const static_keywords = {
-  cookie_name: "token",
+const STATIC_KEYWORDS = {
+  cookieName: "token",
 };
 
-const user_types = {
+const USER_TYPES = {
   manager: "manager",
   developer: "developer",
   QA: "QA",
 };
 
-const bugs_types = {
+const BUGS_TYPES = {
   bug: {
-    type_name: "bug",
+    typeName: "bug",
     status: {
       new: "new",
       started: "started",
@@ -18,7 +18,7 @@ const bugs_types = {
     },
   },
   feature: {
-    type_name: "feature",
+    typeName: "feature",
     status: {
       new: "new",
       started: "started",
@@ -27,9 +27,9 @@ const bugs_types = {
   },
 };
 
-const email_type = {
+const EMAIL_TYPE = {
   bug: "Bug",
   project: "Project",
 };
 
-module.exports = { static_keywords, user_types, email_type, bugs_types };
+module.exports = { STATIC_KEYWORDS, USER_TYPES, EMAIL_TYPE, BUGS_TYPES };

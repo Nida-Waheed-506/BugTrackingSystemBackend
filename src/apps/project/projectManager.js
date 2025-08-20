@@ -3,10 +3,10 @@ const { userHandlers } = require("../../handlers/userHandlers");
 const { Project } = require("../../models/project");
 const { User } = require("../../models/user");
 const { services } = require("../../services/services");
-const { user_types, email_type } = require("../../utils/constants");
+const { USER_TYPES, EMAIL_TYPE } = require("../../utils/constants");
 const {
-  http_response_status_codes,
-} = require("../../utils/http_response_status_codes");
+  HTTP_RESPONSE_STATUS_CODES,
+} = require("../../utils/httpResponseStatusCode");
 const { ERRORS_MESSAGES } = require("../../utils/response_msg");
 
 // +++++++++++++++++++ imports end +++++++++++++++++++++++++++++++++++++
@@ -86,14 +86,14 @@ class ProjectManager {
 
   isProjectManager = async (project_id, manager_id) => {
     const project = await Project.findOne({
-      where: { id: parseInt(project_id) },
+      where: { id: project_id },
     });
 
     if (!project) throw new Error(ERRORS_MESSAGES.project.project_not_found);
 
     const isManager = await projectHandlers.isProjectManager(
       project,
-      parseInt(manager_id)
+      manager_id
     );
 
     if (!isManager)
@@ -114,8 +114,8 @@ class ProjectManager {
     //  find user is QA or developer
 
     if (
-      user.user_type !== user_types.developer &&
-      user.user_type !== user_types.QA
+      user.user_type !== USER_TYPES.developer &&
+      user.user_type !== USER_TYPES.QA
     )
       throw new Error(ERRORS_MESSAGES.project.project_assign_to_which_users);
 
@@ -138,7 +138,7 @@ class ProjectManager {
       const project = await projectHandlers.getProject(
         projectAssign[0].dataValues.ProjectId
       );
-      services.sendEmail(user, project, email_type.project);
+      services.sendEmail(user, project, EMAIL_TYPE.project);
     }
 
     return projectAssign;

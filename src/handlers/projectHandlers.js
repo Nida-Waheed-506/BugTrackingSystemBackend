@@ -2,7 +2,7 @@ const { Project } = require("../models/project");
 const { User } = require("../models/user");
 const { Bug } = require("../models/bug");
 const { Op } = require("sequelize");
-const { user_types } = require("../utils/constants");
+const { USER_TYPES } = require("../utils/constants");
 // +++++++++++++++++++++++++++ imports end ++++++++++++++++++++++++++++++++++++++++
 
 class ProjectHandlers {
@@ -73,7 +73,7 @@ class ProjectHandlers {
   // top developers
   findUsersDevsTop = async (project, limit) => {
     const devs = await project.getUsers({
-      where: { user_type: user_types.developer },
+      where: { user_type: USER_TYPES.developer },
       limit: limit,
     });
 
@@ -86,7 +86,7 @@ class ProjectHandlers {
     const devs = await project.getUsers({
       where: {
         name: { [Op.iLike]: `%${searchingName}%` },
-        user_type: user_types.developer,
+        user_type: USER_TYPES.developer,
       },
       limit: 2,
     });

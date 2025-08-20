@@ -1,6 +1,6 @@
 const validator = require("validator");
 const { ERRORS_MESSAGES } = require("./response_msg");
-const { bugs_types, user_types } = require("./constants");
+const { BUGS_TYPES, USER_TYPES } = require("./constants");
 
 const validateUserData = (userData) => {
   const { name, email, user_type, mobile_number } = userData;
@@ -14,12 +14,12 @@ const validateUserData = (userData) => {
     throw new Error(ERRORS_MESSAGES.validation_errors.mobile_number_required);
 };
 
-const validate_user_type = (user_type) => {
+const validateUserType = (user_type) => {
   if (
     !(
-      user_type === user_types.manager ||
-      user_type === user_types.developer ||
-      user_type === user_types.QA
+      user_type === USER_TYPES.manager ||
+      user_type === USER_TYPES.developer ||
+      user_type === USER_TYPES.QA
     )
   )
     throw new Error(ERRORS_MESSAGES.validation_errors.user_type_invalid);
@@ -45,9 +45,7 @@ const validateProjectData = (projectData, image) => {
 
 const typeValidator = (type) => {
   if (
-    !(
-      type === bugs_types.bug.type_name || type === bugs_types.feature.type_name
-    )
+    !(type === BUGS_TYPES.bug.typeName || type === BUGS_TYPES.feature.typeName)
   )
     throw new Error(ERRORS_MESSAGES.validation_errors.bugs_types_invalid);
 };
@@ -67,27 +65,74 @@ const validateBugData = (bugDetail) => {
 
 const statusValidator = (type, status) => {
   if (
-    type === bugs_types.feature.type_name &&
-    status !== bugs_types.feature.status.new &&
-    status !== bugs_types.feature.status.started &&
-    status !== bugs_types.feature.status.completed
+    type === BUGS_TYPES.feature.typeName &&
+    status !== BUGS_TYPES.feature.status.new &&
+    status !== BUGS_TYPES.feature.status.started &&
+    status !== BUGS_TYPES.feature.status.completed
   )
     throw new Error(ERRORS_MESSAGES.validation_errors.feature_status_invalid);
   else if (
-    type === bugs_types.bug.type_name &&
-    status !== bugs_types.bug.status.new &&
-    status !== bugs_types.bug.status.started &&
-    status !== bugs_types.bug.status.resolved
+    type === BUGS_TYPES.bug.typeName &&
+    status !== BUGS_TYPES.bug.status.new &&
+    status !== BUGS_TYPES.bug.status.started &&
+    status !== BUGS_TYPES.bug.status.resolved
   )
     throw new Error(ERRORS_MESSAGES.validation_errors.bug_status_invalid);
+};
+
+const userIdValidator = (id) => {
+  if (isNaN(id))
+    throw new Error(ERRORS_MESSAGES.validation_errors.invalid_user_id_format);
+  return (id = parseInt(id));
+};
+
+const projectIdValidator = (project_id) => {
+  if (isNaN(project_id))
+    throw new Error(
+      ERRORS_MESSAGES.validation_errors.invalid_project_id_format
+    );
+  return (project_id = parseInt(project_id));
+};
+
+const bugIdValidator = (bug_id) => {
+  if (isNaN(bug_id))
+    throw new Error(ERRORS_MESSAGES.validation_errors.invalid_bug_id_format);
+  return (bug_id = parseInt(bug_id));
+};
+
+const paginationPageValidator = (page) => {
+  if (isNaN(page))
+    throw new Error(
+      ERRORS_MESSAGES.validation_errors.invalid_pagination_page_format
+    );
+};
+
+const paginationLimitValidator = (limit) => {
+  if (isNaN(limit))
+    throw new Error(
+      ERRORS_MESSAGES.validation_errors.invalid_pagination_limit_format
+    );
+};
+
+const userGetLimitValidator = (limit) => {
+  if (isNaN(limit))
+    throw new Error(
+      ERRORS_MESSAGES.validation_errors.invalid_users_get_limit_format
+    );
 };
 
 module.exports = {
   validateUserData,
   validateBugData,
-  validate_user_type,
+  validateUserType,
   validateProjectData,
   typeValidator,
   validatePassword,
   statusValidator,
+  userIdValidator,
+  projectIdValidator,
+  paginationPageValidator,
+  paginationLimitValidator,
+  userGetLimitValidator,
+  bugIdValidator,
 };

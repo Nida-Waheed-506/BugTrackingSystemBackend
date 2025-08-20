@@ -1,4 +1,4 @@
-const http_response_status_codes = {
+const HTTP_RESPONSE_STATUS_CODES = {
   ok: 200,
   created: 201,
   bad_request: 400,
@@ -8,4 +8,4 @@ const http_response_status_codes = {
   internal_server_error: 500,
 };
 
-module.exports = { http_response_status_codes };
+module.exports = { HTTP_RESPONSE_STATUS_CODES };

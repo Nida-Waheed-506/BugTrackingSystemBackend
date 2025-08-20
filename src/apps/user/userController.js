@@ -1,5 +1,5 @@
 const { userManager } = require("./userManager");
-const { static_keywords } = require("../../utils/constants");
+const { STATIC_KEYWORDS } = require("../../utils/constants");
 const {
   ERRORS_MESSAGES,
   ERRORS_NAMES,
@@ -7,9 +7,13 @@ const {
 } = require("../../utils/response_msg");
 
 const {
-  http_response_status_codes,
-} = require("../../utils/http_response_status_codes");
-const { SHOWN_ERRORS_Of_User } = require("../../utils/showError/user");
+  HTTP_RESPONSE_STATUS_CODES,
+} = require("../../utils/httpResponseStatusCode");
+const { SHOWN_ERRORS_Of_User } = require("../../utils/response_msg");
+const {
+  userGetLimitValidator,
+  userIdValidator,
+} = require("../../utils/response_msg");
 // +++++++++++++++++++++++++ imports end +++++++++++++++++++++++++++++++++++++++
 
 class UserController {
@@ -17,15 +21,17 @@ class UserController {
     try {
       const { user, token } = await userManager.createUser(req.body);
 
-      res.cookie(static_keywords.cookie_name, token, {
+      res.cookie(STATIC_KEYWORDS.cookieName, token, {
         expires: new Date(Date.now() + 8 * 3600000),
       });
       res
-        .status(http_response_status_codes.created)
+        .status(HTTP_RESPONSE_STATUS_CODES.created)
         .json({ message: SUCCESS_MESSAGES.user.user_signup, data: user });
     } catch (error) {
-      SHOWN_ERRORS_Of_User.createUser_error(error, res);
-      SHOWN_ERRORS_Of_User.unexpected_error(res);
+      const response_msg = SHOWN_ERRORS_Of_User.createUserError(error, res);
+      if (response_msg) {
+        res.status(response_msg.statusCode).json({ error: response_msg.err });
+      }
     }
   };
 
@@ -33,68 +39,80 @@ class UserController {
     try {
       const { user, token } = await userManager.findUser(req.body);
       if (user) {
-        res.cookie(static_keywords.cookie_name, token, {
+        res.cookie(STATIC_KEYWORDS.cookieName, token, {
           expires: new Date(Date.now() + 8 * 3600000),
         });
         res
-          .status(http_response_status_codes.ok)
+          .status(HTTP_RESPONSE_STATUS_CODES.ok)
           .json({ message: SUCCESS_MESSAGES.user.user_login, data: user });
       } else throw new Error(ERRORS_MESSAGES.user.unauthorized_user);
     } catch (error) {
-      SHOWN_ERRORS_Of_User.findUser_error(error, res);
-      SHOWN_ERRORS_Of_User.unexpected_error(res);
+      const response_msg = SHOWN_ERRORS_Of_User.findUserError(error, res);
+      if (response_msg) {
+        res.status(response_msg.statusCode).json({ error: response_msg.err });
+      }
     }
   };
 
   getUser = async (req, res) => {
     try {
-      const { id } = req.params;
+      let { id } = req.params;
 
-      const user = await userManager.getUser(parseInt(id));
+      id = userIdValidator(id);
+
+      const user = await userManager.getUser(id);
       if (!user) throw new Error(ERRORS_MESSAGES.user.user_not_found);
 
       return res
-        .status(http_response_status_codes.ok)
+        .status(HTTP_RESPONSE_STATUS_CODES.ok)
         .json({ message: SUCCESS_MESSAGES.user.user_get, data: user });
     } catch (error) {
-      SHOWN_ERRORS_Of_User.getUser_error(error, res);
-      SHOWN_ERRORS_Of_User.unexpected_error(res);
+      const response_msg = SHOWN_ERRORS_Of_User.getUserError(error, res);
+      if (response_msg) {
+        res.status(response_msg.statusCode).json({ error: response_msg.err });
+      }
     }
   };
 
   editUser = async (req, res) => {
     try {
-      const { id } = req.params;
+      let { id } = req.params;
       const { id: loggedInUserId } = req.user;
 
-      if (parseInt(id) !== loggedInUserId)
+      id = userIdValidator(id);
+
+      if (id !== loggedInUserId)
         throw new Error(ERRORS_MESSAGES.user.own_profile_edit);
-      const user = await userManager.editUser(parseInt(id), req.body);
+      const user = await userManager.editUser(id, req.body);
       if (user)
         return res
-          .status(http_response_status_codes.ok)
+          .status(HTTP_RESPONSE_STATUS_CODES.ok)
           .json({ message: SUCCESS_MESSAGES.user.user_update });
     } catch (error) {
-      SHOWN_ERRORS_Of_User.editUser_error(error, res);
-      SHOWN_ERRORS_Of_User.unexpected_error();
+      const response_msg = SHOWN_ERRORS_Of_User.editUserError(error, res);
+      if (response_msg) {
+        res.status(response_msg.statusCode).json({ error: response_msg.err });
+      }
     }
   };
 
   deleteUser = async (req, res) => {
     try {
-      const { id } = req.params;
+      let { id } = req.params;
       const { id: loggedInUserId } = req.user;
-
-      if (parseInt(id) !== loggedInUserId)
+      id = userIdValidator(id);
+      if (id !== loggedInUserId)
         throw new Error(ERRORS_MESSAGES.user.delete_user);
-      const user = await userManager.deleteUser(parseInt(id));
+      const user = await userManager.deleteUser(id);
       if (user)
         return res
-          .status(http_response_status_codes.ok)
+          .status(HTTP_RESPONSE_STATUS_CODES.ok)
           .json({ message: SUCCESS_MESSAGES.user.user_delete });
     } catch (error) {
-      SHOWN_ERRORS_Of_User.deleteUser_error(error, res);
-      SHOWN_ERRORS_Of_User.unexpected_error();
+      const response_msg = SHOWN_ERRORS_Of_User.deleteUserError(error, res);
+      if (response_msg) {
+        res.status(response_msg.statusCode).json({ error: response_msg.err });
+      }
     }
   };
 
@@ -102,23 +120,26 @@ class UserController {
     try {
       const { search: searchingName } = req.query;
       const limit = req.query.limit || 5;
+      userGetLimitValidator(limit);
       if (searchingName) {
         const users = await userManager.getUsersByName(searchingName);
         if (!users) throw new Error(ERRORS_MESSAGES.user.users_not_found);
 
-        res.status(http_response_status_codes.ok).json({
+        res.status(HTTP_RESPONSE_STATUS_CODES.ok).json({
           message: SUCCESS_MESSAGES.user.users_get,
           data: Array.isArray(users) ? users : [users],
         });
       } else {
         const topUsers = await userManager.getUsers(limit);
         return res
-          .status(http_response_status_codes.ok)
+          .status(HTTP_RESPONSE_STATUS_CODES.ok)
           .json({ message: SUCCESS_MESSAGES.user.users_get, data: topUsers });
       }
     } catch (error) {
-      SHOWN_ERRORS_Of_User.getUser_error(error, res);
-      SHOWN_ERRORS_Of_User.unexpected_error(res);
+      const response_msg = SHOWN_ERRORS_Of_User.getUserError(error, res);
+      if (response_msg) {
+        res.status(response_msg.statusCode).json({ error: response_msg.err });
+      }
     }
   };
 }

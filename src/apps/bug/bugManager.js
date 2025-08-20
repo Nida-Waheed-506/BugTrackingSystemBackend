@@ -5,7 +5,7 @@ const { userHandlers } = require("../../handlers/userHandlers");
 const { Project } = require("../../models/project");
 const { User } = require("../../models/user");
 const { ERRORS_MESSAGES } = require("../../utils/response_msg");
-const { user_types, email_type } = require("../../utils/constants");
+const { USER_TYPES, EMAIL_TYPE } = require("../../utils/constants");
 const { Bug } = require("../../models/bug");
 const { Op } = require("sequelize");
 // +++++++++++++++++++++ imports end +++++++++++++++++++++++++++++++
@@ -21,17 +21,17 @@ class BugManager {
     //project exists or  not
 
     const project = await Project.findOne({
-      where: { id: parseInt(project_id) },
+      where: { id: project_id },
     });
     if (!project) throw new Error(ERRORS_MESSAGES.project.project_not_found);
 
     //QA is assigned to that project or not by the manager
 
     const isValidQAToProject = await Project.findOne({
-      where: { id: parseInt(project_id) },
+      where: { id: project_id },
       include: {
         model: User,
-        where: { id: QA_id, user_type: user_types.QA },
+        where: { id: QA_id, user_type: USER_TYPES.QA },
         through: { attributes: [] },
       },
     });
@@ -54,7 +54,7 @@ class BugManager {
       developer_id.map(async (developer_id) => {
         const user = await userHandlers.getUser(parseInt(developer_id));
 
-        services.sendEmail(user, bug, email_type.bug);
+        services.sendEmail(user, bug, EMAIL_TYPE.bug);
       });
     }
 
@@ -76,17 +76,17 @@ class BugManager {
     //project exists or  not
 
     const project = await Project.findOne({
-      where: { id: parseInt(project_id) },
+      where: { id: project_id },
     });
     if (!project) throw new Error(ERRORS_MESSAGES.project.project_not_found);
 
     //QA is assigned to that project or not by the manager
 
     const isValidQAToProject = await Project.findOne({
-      where: { id: parseInt(project_id) },
+      where: { id: project_id },
       include: {
         model: User,
-        where: { id: QA_id, user_type: user_types.QA },
+        where: { id: QA_id, user_type: USER_TYPES.QA },
         through: { attributes: [] },
       },
     });
@@ -110,7 +110,7 @@ class BugManager {
       developer_id.map(async (developer_id) => {
         const user = await userHandlers.getUser(parseInt(developer_id));
 
-        services.sendEmail(user, bug, user_types.QA);
+        services.sendEmail(user, bug, USER_TYPES.QA);
       });
     }
 
@@ -121,17 +121,17 @@ class BugManager {
     //project exists or  not
 
     const project = await Project.findOne({
-      where: { id: parseInt(project_id) },
+      where: { id: project_id },
     });
     if (!project) throw new Error(ERRORS_MESSAGES.project.project_not_found);
 
     //QA is assigned to that project or not by the manager
 
     const isValidQAToProject = await Project.findOne({
-      where: { id: parseInt(project_id) },
+      where: { id: project_id },
       include: {
         model: User,
-        where: { id: QA_id, user_type: user_types.QA },
+        where: { id: QA_id, user_type: USER_TYPES.QA },
         through: { attributes: [] },
       },
     });
@@ -139,7 +139,7 @@ class BugManager {
     if (!isValidQAToProject)
       throw new Error(ERRORS_MESSAGES.project.QA_not_assign_to_project);
 
-    const bug = await bugHandlers.deleteBug(parseInt(bug_id));
+    const bug = await bugHandlers.deleteBug(bug_id);
 
     if (bug) {
       return await bug.destroy();
@@ -160,7 +160,7 @@ class BugManager {
     typeValidator(type);
     // bug status validator
     statusValidator(type, status);
-    const obj = await Bug.findOne({ where: { id: parseInt(id) } });
+    const obj = await Bug.findOne({ where: { id: id } });
     if (!obj) throw new Error(ERRORS_MESSAGES.bug.task_not_found);
 
     const isValidUser = await Bug.findOne({

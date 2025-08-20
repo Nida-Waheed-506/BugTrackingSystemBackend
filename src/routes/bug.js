@@ -42,11 +42,15 @@ bugRouter.patch(
 );
 
 bugRouter.get(
-  "/bug/project/:project_id/QA/belong",
+  "/bug/project/:project_id/user/QA/belong",
   isQA,
   bugController.isQABelongToProject
 );
 
-bugRouter.get("/bug/:bug_id/QA/belong", isQA, bugController.isQABelongToBug);
+bugRouter.get(
+  "/bug/:bug_id/user/QA/belong",
+  isQA,
+  bugController.isQABelongToBug
+);
 
 module.exports = { bugRouter };

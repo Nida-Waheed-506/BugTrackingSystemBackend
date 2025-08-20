@@ -3,6 +3,7 @@ const {
   validateUserData,
   validatePassword,
   validate_user_type,
+  validateUserType,
 } = require("../../utils/validation");
 const { generateToken } = require("../../utils/generateToken");
 const bcrypt = require("bcrypt");
@@ -16,7 +17,7 @@ class UserManager {
     //validate the user
 
     validateUserData(userData);
-    validate_user_type(userData.user_type);
+    validateUserType(userData.user_type);
     validatePassword(password);
 
     // hashed Password

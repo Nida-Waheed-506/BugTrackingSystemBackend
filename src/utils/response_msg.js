@@ -60,6 +60,16 @@ const ERRORS_MESSAGES = {
     bugs_types_invalid: "Type of bug must be feature or bug",
     bug_status_invalid: "Status must be in [new , started , completed]",
     feature_status_invalid: "Status must be in [new , started , resolved]",
+    invalid_user_id_format: "Invalid id format only numeric values are allowed",
+    invalid_project_id_format:
+      "Invalid project id format only numeric values are allowed",
+    invalid_pagination_limit_format:
+      "Invalid pagination limit format only numeric values are allowed",
+    invalid_pagination_page_format:
+      "Invalid pagination page format only numeric values are allowed",
+    invalid_users_get_limit_format:
+      "Invalid users get limit format only numeric values are allowed",
+    invalid_bug_id_format: "Invalid bug format only numeric values are allowed",
   },
   user: {
     invalid_email_format: "Invalid email format",

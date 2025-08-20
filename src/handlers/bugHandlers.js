@@ -1,7 +1,7 @@
 const { Bug } = require("../models/bug");
 const { Project } = require("../models/project");
 const { User } = require("../models/user");
-const { user_types } = require("../utils/constants");
+const { USER_TYPES } = require("../utils/constants");
 // +++++++++++++++++++++++++ imports end +++++++++++++++++++++++++++++++++
 
 class BugHandlers {
@@ -18,7 +18,7 @@ class BugHandlers {
       screenshot: screenshot,
       type: type,
       status: status,
-      project_id: parseInt(project_id),
+      project_id: project_id,
       QA_id: QA_id,
       developer_id: JSON.parse(developer_id),
     });
@@ -48,7 +48,7 @@ class BugHandlers {
       screenshot: screenshot,
       type: type,
       status: status,
-      project_id: parseInt(project_id),
+      project_id: project_id,
       QA_id: QA_id,
       developer_id: JSON.parse(developer_id),
     });
@@ -97,10 +97,10 @@ class BugHandlers {
 
   isQABelongToProject = async (project_id, QA_id) => {
     const isValidQAToProject = await Project.findOne({
-      where: { id: parseInt(project_id) },
+      where: { id: project_id },
       include: {
         model: User,
-        where: { id: QA_id, user_type: user_types.QA },
+        where: { id: QA_id, user_type: USER_TYPES.QA },
         through: { attributes: [] },
       },
     });
