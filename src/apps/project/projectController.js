@@ -67,6 +67,27 @@ class ProjectController {
     }
   };
 
+  findProjectByName = async (req, res) => {
+    const { title } = req.params;
+
+    try {
+      // get the project
+      const projects = await projectManager.findProjectByName(title);
+      if (projects) {
+        res.status(HTTP_RESPONSE_STATUS_CODES.ok).json({
+          message: SUCCESS_MESSAGES.project.projects_get,
+          data: [projects, req.user],
+        });
+      } else throw new Error(ERRORS_MESSAGES.project.projects_not_found);
+    } catch (error) {
+      console.log(error);
+      const response_msg = SHOWN_ERRORS_Of_Project.findProjectsError(error);
+      if (response_msg) {
+        res.status(response_msg.statusCode).json({ error: response_msg.err });
+      }
+    }
+  };
+
   findProject = async (req, res) => {
     try {
       let { project_id } = req.params;

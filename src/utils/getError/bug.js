@@ -5,6 +5,10 @@ const SHOWN_ERRORS_Of_Bug = {
   createBugError: (error, res) => {
     let err;
     let statusCode;
+    const BAD_REQUEST_MESSAGES = [
+      ERRORS_MESSAGES.validation_errors.bugs_types_invalid,
+      ERRORS_MESSAGES.project.QA_not_assign_to_project,
+    ];
     if (error.name === ERRORS_NAMES.SequelizeUniqueConstraintError) {
       statusCode = HTTP_RESPONSE_STATUS_CODES.conflict;
       err = ERRORS_MESSAGES.bug.task_already_exists;

@@ -33,6 +33,15 @@ class ProjectHandlers {
     return { count, rows };
   };
 
+  findProjectByName = async (title) => {
+    const projects = await Project.findAll({
+      where: { projectName: { [Op.iLike]: `%${title}%` } },
+      include: [{ model: Bug }],
+    });
+
+    return projects;
+  };
+
   findProject = async (id) => {
     const project = await Project.findOne({
       where: { id: id },

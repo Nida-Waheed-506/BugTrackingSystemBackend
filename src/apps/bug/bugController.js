@@ -125,6 +125,30 @@ class BugController {
     }
   };
 
+  findBugsByName = async (req, res, next) => {
+    const { title } = req.params;
+
+    try {
+      let { project_id } = req.query;
+
+      project_id = projectIdValidator(project_id);
+
+      const bugs = await bugManager.findBugsByName(project_id, title);
+
+      if (bugs.length !== 0)
+        res
+          .status(HTTP_RESPONSE_STATUS_CODES.ok)
+          .json({ message: SUCCESS_MESSAGES.bug.tasks_get, data: bugs });
+      else throw new Error(ERRORS_MESSAGES.bug.tasks_not_found);
+    } catch (error) {
+      console.log(error);
+      const response_msg = SHOWN_ERRORS_Of_Bug.findBugsError(error);
+      if (response_msg) {
+        res.status(response_msg.statusCode).json({ error: response_msg.err });
+      }
+    }
+  };
+
   findBug = async (req, res, next) => {
     try {
       let { bug_id } = req.params;

@@ -9,11 +9,11 @@ const {
 const {
   HTTP_RESPONSE_STATUS_CODES,
 } = require("../../utils/httpResponseStatusCode");
-const { SHOWN_ERRORS_Of_User } = require("../../utils/response_msg");
+const { SHOWN_ERRORS_Of_User } = require("../../utils/getError/user");
 const {
   userGetLimitValidator,
   userIdValidator,
-} = require("../../utils/response_msg");
+} = require("../../utils/validation");
 // +++++++++++++++++++++++++ imports end +++++++++++++++++++++++++++++++++++++++
 
 class UserController {
@@ -28,7 +28,7 @@ class UserController {
         .status(HTTP_RESPONSE_STATUS_CODES.created)
         .json({ message: SUCCESS_MESSAGES.user.user_signup, data: user });
     } catch (error) {
-      const response_msg = SHOWN_ERRORS_Of_User.createUserError(error, res);
+      const response_msg = SHOWN_ERRORS_Of_User.createUserError(error);
       if (response_msg) {
         res.status(response_msg.statusCode).json({ error: response_msg.err });
       }
@@ -47,7 +47,7 @@ class UserController {
           .json({ message: SUCCESS_MESSAGES.user.user_login, data: user });
       } else throw new Error(ERRORS_MESSAGES.user.unauthorized_user);
     } catch (error) {
-      const response_msg = SHOWN_ERRORS_Of_User.findUserError(error, res);
+      const response_msg = SHOWN_ERRORS_Of_User.findUserError(error);
       if (response_msg) {
         res.status(response_msg.statusCode).json({ error: response_msg.err });
       }
@@ -67,7 +67,7 @@ class UserController {
         .status(HTTP_RESPONSE_STATUS_CODES.ok)
         .json({ message: SUCCESS_MESSAGES.user.user_get, data: user });
     } catch (error) {
-      const response_msg = SHOWN_ERRORS_Of_User.getUserError(error, res);
+      const response_msg = SHOWN_ERRORS_Of_User.getUserError(error);
       if (response_msg) {
         res.status(response_msg.statusCode).json({ error: response_msg.err });
       }
@@ -89,7 +89,7 @@ class UserController {
           .status(HTTP_RESPONSE_STATUS_CODES.ok)
           .json({ message: SUCCESS_MESSAGES.user.user_update });
     } catch (error) {
-      const response_msg = SHOWN_ERRORS_Of_User.editUserError(error, res);
+      const response_msg = SHOWN_ERRORS_Of_User.editUserError(error);
       if (response_msg) {
         res.status(response_msg.statusCode).json({ error: response_msg.err });
       }
@@ -109,7 +109,7 @@ class UserController {
           .status(HTTP_RESPONSE_STATUS_CODES.ok)
           .json({ message: SUCCESS_MESSAGES.user.user_delete });
     } catch (error) {
-      const response_msg = SHOWN_ERRORS_Of_User.deleteUserError(error, res);
+      const response_msg = SHOWN_ERRORS_Of_User.deleteUserError(error);
       if (response_msg) {
         res.status(response_msg.statusCode).json({ error: response_msg.err });
       }
@@ -136,7 +136,7 @@ class UserController {
           .json({ message: SUCCESS_MESSAGES.user.users_get, data: topUsers });
       }
     } catch (error) {
-      const response_msg = SHOWN_ERRORS_Of_User.getUserError(error, res);
+      const response_msg = SHOWN_ERRORS_Of_User.getUserError(error);
       if (response_msg) {
         res.status(response_msg.statusCode).json({ error: response_msg.err });
       }

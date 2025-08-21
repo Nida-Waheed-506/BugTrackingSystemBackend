@@ -36,6 +36,22 @@ class ProjectManager {
     return { projects, count };
   };
 
+  findProjectByName = async (title) => {
+    const rows = await projectHandlers.findProjectByName(title);
+
+    let projects;
+
+    projects = rows.map((project) => {
+      const projectJSON = project.toJSON();
+      if (projectJSON.image) {
+        projectJSON.image = projectJSON.image.toString("base64");
+      }
+      return projectJSON;
+    });
+
+    return projects;
+  };
+
   findProject = async (id) => {
     const project = await projectHandlers.findProject(id);
     if (!project) throw new Error(ERRORS_MESSAGES.project.project_not_found);

@@ -29,6 +29,7 @@ bugRouter.patch(
   bugController.editBug
 );
 
+bugRouter.get("/bug/:title", bugController.findBugsByName);
 bugRouter.get("/bug/:bug_id", bugController.findBug);
 
 bugRouter.delete("/bug/:bug_id", isQA, bugController.deleteBug);

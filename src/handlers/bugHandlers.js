@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { Bug } = require("../models/bug");
 const { Project } = require("../models/project");
 const { User } = require("../models/user");
@@ -70,6 +71,24 @@ class BugHandlers {
       distinct: true,
       limit,
       offset,
+      attributes: [
+        "id",
+        "title",
+        "description",
+        "deadline",
+        "screenshot",
+        "type",
+        "status",
+        "project_id",
+        "QA_id",
+        "developer_id",
+      ],
+    });
+  };
+
+  findBugsByName = async (project_id, title) => {
+    return await Bug.findAll({
+      where: { project_id: project_id, title: { [Op.iLike]: `%${title}%` } },
       attributes: [
         "id",
         "title",

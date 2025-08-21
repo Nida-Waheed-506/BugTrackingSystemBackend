@@ -23,6 +23,8 @@ projectRouter.post(
   projectController.createProject
 );
 
+projectRouter.get("/project/:title", projectController.findProjectByName);
+
 projectRouter.get("/project/:project_id", projectController.findProject);
 
 projectRouter.patch(

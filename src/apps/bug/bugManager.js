@@ -152,6 +152,10 @@ class BugManager {
     return await bugHandlers.findBugs(project_id, limit, offset);
   };
 
+  findBugsByName = async (project_id, title) => {
+    return await bugHandlers.findBugsByName(project_id, title);
+  };
+
   findBug = async (bug_id) => {
     return await bugHandlers.findBug(bug_id);
   };
